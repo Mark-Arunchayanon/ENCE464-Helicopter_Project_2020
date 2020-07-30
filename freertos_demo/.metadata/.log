@@ -319,3 +319,229 @@ Caused by: java.lang.IllegalArgumentException:
 
 !ENTRY com.ti.ccstudio.project.ui.webcontent 1 0 2020-07-23 13:51:30.330
 !MESSAGE CCS HTTP adapter started! [ccs.port:54128] - Open 'http://localhost:54128/ide' in web browser to see listing of available APIs...
+!SESSION 2020-07-30 12:50:02.905 -----------------------------------------------
+eclipse.buildId=4.8.0.I20180611-0500
+java.version=1.8.0_144
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_NZ
+Framework arguments:  -product com.ti.ccstudio.branding.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product com.ti.ccstudio.branding.product
+
+!ENTRY com.ti.common.core 1 0 2020-07-30 12:54:38.346
+!MESSAGE path=ccs_base/DebugServer
+
+!ENTRY com.ti.common.core 1 0 2020-07-30 12:54:38.377
+!MESSAGE debugServerDir=C:/ti/ccs920/ccs/ccs_base/DebugServer
+
+!ENTRY org.eclipse.launchbar.core 2 0 2020-07-30 12:54:50.486
+!MESSAGE Enablement expression is missing for descriptor type org.eclipse.cdt.debug.core.coreBuildDescriptorType
+
+!ENTRY org.eclipse.launchbar.core 2 0 2020-07-30 12:54:50.501
+!MESSAGE Enablement expression is missing for config provider for org.eclipse.cdt.debug.core.coreBuildDescriptorType
+
+!ENTRY org.eclipse.launchbar.core 2 0 2020-07-30 12:54:50.501
+!MESSAGE Enablement expression is missing for config provider for org.eclipse.cdt.debug.core.coreBuildDescriptorType
+
+!ENTRY com.ti.ccstudio.ui 1 0 2020-07-30 12:55:03.483
+!MESSAGE CCS IDE session started!
+	CCS build: 9.2.0.00013
+	CCS location: C:/ti/ccs920/ccs
+	Workspace location: P:/Courses/ENCE464/Helrig/group10/freertos_demo (previously: P:/Courses/ENCE464/Helrig/freertos_demo)
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:03.769
+!MESSAGE constructor
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:03.775
+!MESSAGE done with directories
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:03.780
+!MESSAGE loading ti_logger
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:03.787
+!MESSAGE Platform os: win32
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:03.792
+!MESSAGE loading cToolsIF
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:03.821
+!MESSAGE loading cTools
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:03.974
+!MESSAGE loading TraceFactory
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:04.059
+!MESSAGE loading sqlite3
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:04.201
+!MESSAGE loading CloudTrace
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:55:04.500
+!MESSAGE CloudTrace interface loaded
+
+!ENTRY com.ti.ccstudio.project.ui.webcontent 1 0 2020-07-30 12:55:04.554
+!MESSAGE CCS HTTP adapter started! [ccs.port:62285] - Open 'http://localhost:62285/ide' in web browser to see listing of available APIs...
+!SESSION 2020-07-30 12:56:01.676 -----------------------------------------------
+eclipse.buildId=4.8.0.I20180611-0500
+java.version=1.8.0_144
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_NZ
+Framework arguments:  -product com.ti.ccstudio.branding.product
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -product com.ti.ccstudio.branding.product
+
+!ENTRY com.ti.common.core 1 0 2020-07-30 12:56:13.894
+!MESSAGE path=ccs_base/DebugServer
+
+!ENTRY com.ti.common.core 1 0 2020-07-30 12:56:13.894
+!MESSAGE debugServerDir=C:/ti/ccs920/ccs/ccs_base/DebugServer
+
+!ENTRY org.eclipse.launchbar.core 2 0 2020-07-30 12:56:19.664
+!MESSAGE Enablement expression is missing for descriptor type org.eclipse.cdt.debug.core.coreBuildDescriptorType
+
+!ENTRY org.eclipse.launchbar.core 2 0 2020-07-30 12:56:19.679
+!MESSAGE Enablement expression is missing for config provider for org.eclipse.cdt.debug.core.coreBuildDescriptorType
+
+!ENTRY org.eclipse.launchbar.core 2 0 2020-07-30 12:56:19.695
+!MESSAGE Enablement expression is missing for config provider for org.eclipse.cdt.debug.core.coreBuildDescriptorType
+
+!ENTRY com.ti.ccstudio.ui 1 0 2020-07-30 12:56:22.126
+!MESSAGE CCS IDE session started!
+	CCS build: 9.2.0.00013
+	CCS location: C:/ti/ccs920/ccs
+	Workspace location: P:/Courses/ENCE464/Helrig/group10/freertos_demo
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.249
+!MESSAGE constructor
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.249
+!MESSAGE done with directories
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.265
+!MESSAGE loading ti_logger
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.276
+!MESSAGE Platform os: win32
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.283
+!MESSAGE loading cToolsIF
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.290
+!MESSAGE loading cTools
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.299
+!MESSAGE loading TraceFactory
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.306
+!MESSAGE loading sqlite3
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.314
+!MESSAGE loading CloudTrace
+
+!ENTRY com.ti.dbgtrc.webapp.CloudTraceInterface 0 0 2020-07-30 12:56:22.326
+!MESSAGE CloudTrace interface loaded
+
+!ENTRY com.ti.ccstudio.project.ui.webcontent 1 0 2020-07-30 12:56:22.366
+!MESSAGE CCS HTTP adapter started! [ccs.port:60870] - Open 'http://localhost:60870/ide' in web browser to see listing of available APIs...
+
+!ENTRY com.ti.common.project.core 4 0 2020-07-30 12:56:41.780
+!MESSAGE Invalid project description.
+!STACK 1
+org.eclipse.core.internal.resources.ResourceException: Invalid project description.
+	at org.eclipse.core.internal.resources.Project.checkDescription(Project.java:170)
+	at org.eclipse.core.internal.resources.Project.assertCreateRequirements(Project.java:54)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:264)
+	at org.eclipse.core.internal.resources.Project.create(Project.java:248)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.internalImportProject(ProjectImporter.java:468)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.access$1(ProjectImporter.java:415)
+	at com.ti.ccstudio.project.core.services.ProjectImporter$1.run(ProjectImporter.java:377)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2289)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2316)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.importProject(ProjectImporter.java:375)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage.createExistingProject(ProjectImportPage.java:1373)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage.access$27(ProjectImportPage.java:1211)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage$16.execute(ProjectImportPage.java:1161)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.lambda$0(WorkspaceModifyOperation.java:107)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2289)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2316)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.run(WorkspaceModifyOperation.java:128)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:119)
+Contains: OK
+Contains: P:\Courses\ENCE464\Helrig\group10\freertos_demo overlaps the workspace location: P:\Courses\ENCE464\Helrig\group10\freertos_demo
+!SUBENTRY 1 org.eclipse.core.resources 4 77 2020-07-30 12:56:41.781
+!MESSAGE Invalid project description.
+!SUBENTRY 2 unknown 0 0 2020-07-30 12:56:41.781
+!MESSAGE OK
+!SUBENTRY 2 org.eclipse.core.resources 4 77 2020-07-30 12:56:41.781
+!MESSAGE P:\Courses\ENCE464\Helrig\group10\freertos_demo overlaps the workspace location: P:\Courses\ENCE464\Helrig\group10\freertos_demo
+
+!ENTRY com.ti.common.project.core 4 0 2020-07-30 12:56:48.126
+!MESSAGE Could not read file: P:\Courses\ENCE464\Helrig\group10\freertos_demo\.jxbrowser-data\Cache\data_0.
+!STACK 1
+org.eclipse.core.runtime.CoreException: Could not read file: P:\Courses\ENCE464\Helrig\group10\freertos_demo\.jxbrowser-data\Cache\data_0.
+	at org.eclipse.core.internal.filesystem.Policy.error(Policy.java:45)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.openInputStream(LocalFile.java:412)
+	at org.eclipse.core.filesystem.provider.FileStore.copyFile(FileStore.java:197)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:128)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at org.eclipse.core.filesystem.provider.FileStore.copyDirectory(FileStore.java:166)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:126)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at org.eclipse.core.filesystem.provider.FileStore.copyDirectory(FileStore.java:166)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:126)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at org.eclipse.core.filesystem.provider.FileStore.copyDirectory(FileStore.java:166)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:126)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.internalImportProject(ProjectImporter.java:447)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.access$1(ProjectImporter.java:415)
+	at com.ti.ccstudio.project.core.services.ProjectImporter$1.run(ProjectImporter.java:377)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2289)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2316)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.importProject(ProjectImporter.java:375)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage.createExistingProject(ProjectImportPage.java:1373)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage.access$27(ProjectImportPage.java:1211)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage$16.execute(ProjectImportPage.java:1161)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.lambda$0(WorkspaceModifyOperation.java:107)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2289)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2316)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.run(WorkspaceModifyOperation.java:128)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:119)
+Caused by: java.io.FileNotFoundException: P:\Courses\ENCE464\Helrig\group10\freertos_demo\.jxbrowser-data\Cache\data_0 (The process cannot access the file because it is being used by another process)
+	at java.io.FileInputStream.open0(Native Method)
+	at java.io.FileInputStream.open(Unknown Source)
+	at java.io.FileInputStream.<init>(Unknown Source)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.openInputStream(LocalFile.java:401)
+	... 26 more
+!SUBENTRY 1 org.eclipse.core.filesystem 4 271 2020-07-30 12:56:48.127
+!MESSAGE Could not read file: P:\Courses\ENCE464\Helrig\group10\freertos_demo\.jxbrowser-data\Cache\data_0.
+!STACK 0
+java.io.FileNotFoundException: P:\Courses\ENCE464\Helrig\group10\freertos_demo\.jxbrowser-data\Cache\data_0 (The process cannot access the file because it is being used by another process)
+	at java.io.FileInputStream.open0(Native Method)
+	at java.io.FileInputStream.open(Unknown Source)
+	at java.io.FileInputStream.<init>(Unknown Source)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.openInputStream(LocalFile.java:401)
+	at org.eclipse.core.filesystem.provider.FileStore.copyFile(FileStore.java:197)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:128)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at org.eclipse.core.filesystem.provider.FileStore.copyDirectory(FileStore.java:166)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:126)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at org.eclipse.core.filesystem.provider.FileStore.copyDirectory(FileStore.java:166)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:126)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at org.eclipse.core.filesystem.provider.FileStore.copyDirectory(FileStore.java:166)
+	at org.eclipse.core.filesystem.provider.FileStore.copy(FileStore.java:126)
+	at org.eclipse.core.internal.filesystem.local.LocalFile.copy(LocalFile.java:124)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.internalImportProject(ProjectImporter.java:447)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.access$1(ProjectImporter.java:415)
+	at com.ti.ccstudio.project.core.services.ProjectImporter$1.run(ProjectImporter.java:377)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2289)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2316)
+	at com.ti.ccstudio.project.core.services.ProjectImporter.importProject(ProjectImporter.java:375)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage.createExistingProject(ProjectImportPage.java:1373)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage.access$27(ProjectImportPage.java:1211)
+	at com.ti.ccstudio.project.ui.internal.wizards.importexport.ProjectImportPage$16.execute(ProjectImportPage.java:1161)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.lambda$0(WorkspaceModifyOperation.java:107)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2289)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2316)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.run(WorkspaceModifyOperation.java:128)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:119)
