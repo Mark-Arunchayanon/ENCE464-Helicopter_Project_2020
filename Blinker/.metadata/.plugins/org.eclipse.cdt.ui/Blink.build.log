@@ -1,0 +1,47 @@
+
+**** Build of configuration Debug for project Blink ****
+
+"C:\\ti\\ccs920\\ccs\\utils\\bin\\gmake" -k -j 8 all -O 
+ 
+Building file: "../altitude.c"
+Invoking: ARM Compiler
+"C:/ti/ccs920/ccs/tools/compiler/ti-cgt-arm_18.12.4.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path="P:/Courses/ENCE464/Other files/Blinker/Blink" --include_path="C:/ti/TivaWare_C_Series-2.1.4.178" --include_path="C:/ti/ccs920/ccs/tools/compiler/ti-cgt-arm_18.12.4.LTS/include" --include_path="P:/Courses/ENCE464/Other files/Blinker/Blink/FreeRTOS/include" --include_path="P:/Courses/ENCE464/Other files/Blinker/Blink/FreeRTOS/portable/CCS/ARM_CM4F" --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi --preproc_with_compile --preproc_dependency="altitude.d_raw"  "../altitude.c"
+ 
+>> Compilation failure
+subdir_rules.mk:9: recipe for target 'altitude.obj' failed
+"C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/adc.h", line 254: error #20: identifier "bool" is undefined
+"C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/adc.h", line 296: error #20: identifier "bool" is undefined
+"C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/adc.h", line 296: error #20: identifier "bool" is undefined
+"C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/adc.h", line 305: error #20: identifier "bool" is undefined
+"C:/ti/TivaWare_C_Series-2.1.4.178/driverlib/adc.h", line 309: error #20: identifier "bool" is undefined
+"../altitude.c", line 16: error #142-D: unnamed prototyped parameters not allowed when body is present
+"../altitude.c", line 18: error #20: identifier "ADC0_BASE" is undefined
+"../altitude.c", line 20: warning #225-D: function "ADCIntHandler" declared implicitly
+"../altitude.c", line 22: warning #225-D: function "vPrintString" declared implicitly
+"../altitude.c", line 22: error #20: identifier "ulValue" is undefined
+"../altitude.c", line 22: warning #225-D: function "percentAltitude" declared implicitly
+"../altitude.c", line 25: warning #225-D: function "vTasksDelayUntil" declared implicitly
+"../altitude.c", line 34: warning #161-D: declaration is incompatible with previous "ADCIntHandler" (declared at line 20)
+"../altitude.c", line 38: error #20: identifier "ADC0_BASE" is undefined
+"../altitude.c", line 55: warning #225-D: function "SysCtlPeripheralEnable" declared implicitly
+"../altitude.c", line 55: error #20: identifier "SYSCTL_PERIPH_ADC0" is undefined
+"../altitude.c", line 60: error #20: identifier "ADC0_BASE" is undefined
+"../altitude.c", line 87: error #20: identifier "TASK_STACK_DEPTH" is undefined
+"../altitude.c", line 90: warning #225-D: function "bufferLocation" declared implicitly
+"../altitude.c", line 90: warning #169-D: argument of type "int" is incompatible with parameter of type "circBuf_t *"
+"../altitude.c", line 133: warning #161-D: declaration is incompatible with previous "bufferLocation" (declared at line 90)
+12 errors detected in the compilation of "../altitude.c".
+gmake: *** [altitude.obj] Error 1
+Building file: "../main.c"
+Invoking: ARM Compiler
+"C:/ti/ccs920/ccs/tools/compiler/ti-cgt-arm_18.12.4.LTS/bin/armcl" -mv7M4 --code_state=16 --float_support=FPv4SPD16 -me --include_path="P:/Courses/ENCE464/Other files/Blinker/Blink" --include_path="C:/ti/TivaWare_C_Series-2.1.4.178" --include_path="C:/ti/ccs920/ccs/tools/compiler/ti-cgt-arm_18.12.4.LTS/include" --include_path="P:/Courses/ENCE464/Other files/Blinker/Blink/FreeRTOS/include" --include_path="P:/Courses/ENCE464/Other files/Blinker/Blink/FreeRTOS/portable/CCS/ARM_CM4F" --define=ccs="ccs" --define=PART_TM4C123GH6PM -g --gcc --diag_warning=225 --diag_wrap=off --display_error_number --abi=eabi --preproc_with_compile --preproc_dependency="main.d_raw"  "../main.c"
+ 
+>> Compilation failure
+subdir_rules.mk:9: recipe for target 'main.obj' failed
+"..\altitude.h", line 1: error #38: the #endif for this directive is missing
+"../main.c", line 31: error #42: expression must have arithmetic or pointer type
+2 errors detected in the compilation of "../main.c".
+gmake: *** [main.obj] Error 1
+gmake: Target 'all' not remade because of errors.
+
+**** Build Finished ****
