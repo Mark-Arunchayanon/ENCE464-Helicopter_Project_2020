@@ -27,6 +27,8 @@
 
 #define configUSE_TICK_HOOK 0
 
+#define configSUPPORT_DYNAMIC_ALLOCATION 1
+
 #define INCLUDE_vTaskPrioritySet 0
 
 #define INCLUDE_uxTaskPriorityGet 0

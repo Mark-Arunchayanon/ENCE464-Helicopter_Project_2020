@@ -88,11 +88,11 @@ int main(void)
         while (1); // error creating task, out of memory?
     }
 
-    if (pdTRUE != xTaskCreate(vYawTask, "Yaw", TASK_STACK_DEPTH, NULL, 3,
-                           NULL))
-    { // (void *)1 is our pvParameters for our task func specifying PF_1
-        while (1); // error creating task, out of memory?
-    }
+//    if (pdTRUE != xTaskCreate(vYawTask, "Yaw", TASK_STACK_DEPTH, NULL, 3,
+//                           NULL))
+//    { // (void *)1 is our pvParameters for our task func specifying PF_1
+//        while (1); // error creating task, out of memory?
+//    }
 
     if (pdTRUE != xTaskCreate(vButtonTask, "Buttons", TASK_STACK_DEPTH, NULL, 4,
                            NULL))

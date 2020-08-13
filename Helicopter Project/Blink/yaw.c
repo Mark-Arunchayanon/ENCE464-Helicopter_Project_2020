@@ -160,25 +160,50 @@ void initYaw (void)
     GPIOIntEnable(GPIO_PORTB_BASE, GPIO_INT_PIN_0 | GPIO_INT_PIN_1); //Enable interrupts from PB0 and PB1
     GPIOIntRegister(GPIO_PORTB_BASE, YawIntHandler); //If interrupt occurs, run YawIntHandler
     IntEnable(INT_GPIOB); //Enable interrupts on B.
-}
-
-void vYawTask (void *pvParameters)
-{
-
-    const TickType_t xDelay1s = pdMS_TO_TICKS(20);
-    char statusStr[MAX_STR_LEN + 1];
 
     resetYaw();
-
-    for ( ;; )
-    {
-        degrees = getYaw();
-
-//        usprintf (statusStr, "\nYaw: %d", degrees);
-//        UARTSend (statusStr);
-
-        vTaskDelay(xDelay1s);
-    }
 }
+
+
+
+//BaseType_t takeYawSem (void)
+//{
+//    BaseType_t take = NULL;
+//    take = xSemaphoreTake( xYawSem, portMAX_DELAY );
+//
+//    return take;
+//}
+//
+//void giveYawSem (void)
+//{
+//    xSemaphoreGive( xYawSem);
+//}
+//
+//
+//void vYawTask (void *pvParameters)
+//{
+//
+//    const TickType_t xDelay1s = pdMS_TO_TICKS(20);
+////    char statusStr[MAX_STR_LEN + 1];
+//
+//    resetYaw();
+//
+//    for ( ;; )
+//    {
+//
+//        if (xYawSem != NULL)
+//        {
+//            if (takeYawSem() == pdTRUE)
+//            {
+//                degrees = getYaw();
+//                giveYawSem();
+//            }
+//        }
+////        usprintf (statusStr, "\nYaw: %d", degrees);
+////        UARTSend (statusStr);
+//
+//        vTaskDelay(xDelay1s);
+//    }
+//}
 
 

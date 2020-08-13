@@ -46,7 +46,12 @@ void
 initYaw (void);
 
 
-void
-vYawTask (void *pvParameters);
+//BaseType_t takeYawSem (void);
+//
+//void giveYawSem (void);
+//
+//void
+//vYawTask (void *pvParameters);
+
 
 #endif /* YAW_H_*/

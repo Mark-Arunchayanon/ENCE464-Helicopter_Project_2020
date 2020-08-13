@@ -39,8 +39,8 @@
 
 
 
-extern int32_t percentAlt;
-extern int32_t degrees;
+//extern int32_t percentAlt;
+//extern int32_t degrees;
 
 //extern int32_t AltRef;
 //extern int32_t YawRef;
@@ -120,11 +120,16 @@ void vDisplayTask (void *pvParameters)
 {
     char statusStr[MAX_STR_LEN + 1];
     const TickType_t xDelay1s = pdMS_TO_TICKS(100);
+    int32_t yawReading = 0;
+    int32_t altReading = 0;
 
     for ( ;; )
     {
-        printString("Altitude = %4d%%", percentAlt, 0);
-        printString("Yaw = %4d%%", degrees, 1);
+        yawReading = getYaw();
+        altReading = getAlt();
+
+        printString("Altitude = %4d%%", altReading, 0);
+        printString("Yaw = %4d%%", yawReading, 1);
 
 //        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r"
 //                "AltRef = %2d | YawRef = %2d |", percentAlt, degrees, AltRef, YawRef);
@@ -132,7 +137,7 @@ void vDisplayTask (void *pvParameters)
 //        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r", percentAlt, degrees);
 //        UARTSend (statusStr);
 
-        usprintf (statusStr, "AltRef = %2d | YawRef = %2d |", percentAlt, degrees);
+        usprintf (statusStr, "AltRef = %2d | YawRef = %2d |", altReading, yawReading);
         UARTSend (statusStr);
 //        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
 //        UARTSend (statusStr);

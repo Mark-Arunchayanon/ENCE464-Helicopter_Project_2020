@@ -33,6 +33,7 @@ initADC (void);
 //  RETURNS:         The calculated ADC altitude value as a int32_t
 //int32_t
 //computeAltitude(void);
+int32_t getAlt (void);
 
 
 //  *****************************************************************************

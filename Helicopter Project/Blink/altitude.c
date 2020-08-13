@@ -34,7 +34,7 @@ static uint32_t refAltitude = 1000;       //Reference Altitude
 uint32_t ulValue;
 int calibrate_flag =    0;
 int calibrate_counter = 0;
-extern int32_t percentAlt =    0;
+static int32_t percentAlt =    0;
 //int32_t percentAlt =    0;
 static int32_t meanVal =0;
 
@@ -133,6 +133,11 @@ void initADC (void)
 //    }
 //    return ((2 * AltSum + BUF_SIZE) / 2 / BUF_SIZE);    //returns an overall sum.
 //}
+
+int32_t getAlt (void)
+{
+    return percentAlt;
+}
 
 
 //  *****************************************************************************
