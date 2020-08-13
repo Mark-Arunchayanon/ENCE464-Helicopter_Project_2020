@@ -25,7 +25,6 @@
 #include "stdlib.h"
 
 #include "display.h"
-//#include "system.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "OrbitOLED/lib_OrbitOled/OrbitOled.h"
 #include "altitude.h"
@@ -130,11 +129,11 @@ void vDisplayTask (void *pvParameters)
 //        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r"
 //                "AltRef = %2d | YawRef = %2d |", percentAlt, degrees, AltRef, YawRef);
 //        UARTSend (statusStr);
-        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r", percentAlt, degrees);
-        UARTSend (statusStr);
-
-//        usprintf (statusStr, "AltRef = %2d | YawRef = %2d |", AltRef, YawRef);
+//        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r", percentAlt, degrees);
 //        UARTSend (statusStr);
+
+        usprintf (statusStr, "AltRef = %2d | YawRef = %2d |", percentAlt, degrees);
+        UARTSend (statusStr);
 //        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
 //        UARTSend (statusStr);
 //        usprintf (statusStr, "YawRef=%2d Yaw=%2d | \033[2J\033[H", degrees, degrees);

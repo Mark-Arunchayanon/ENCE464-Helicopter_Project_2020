@@ -31,7 +31,7 @@
 #include "display.h"
 
 #define BUF_SIZE            10
-#define TASK_STACK_DEPTH    50
+#define TASK_STACK_DEPTH    128
 #define TASK_PRIORITY       4
 
 //*****************************************************************************
@@ -106,7 +106,7 @@ int main(void)
 //        while (1); // error creating task, out of memory?
 //    }
 
-    if (pdTRUE != xTaskCreate(vDisplayTask, "Display", TASK_STACK_DEPTH, NULL, 3,
+    if (pdTRUE != xTaskCreate(vDisplayTask, "Display", 512, NULL, 3,
                            NULL))
     { // (void *)1 is our pvParameters for our task func specifying PF_1
         while (1); // error creating task, out of memory?

@@ -153,6 +153,7 @@ void initYaw (void)
 {
 
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB));
     GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1); //Sets PIN) & PIN1 as inputs
     GPIOPadConfigSet(GPIO_PORTB_BASE, GPIO_PIN_0|GPIO_PIN_1, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD);
     GPIOIntTypeSet(GPIO_PORTB_BASE, GPIO_PIN_0|GPIO_PIN_1, GPIO_BOTH_EDGES); //Trigger interrupts on both edges of wave changes on PB0 and PB1
