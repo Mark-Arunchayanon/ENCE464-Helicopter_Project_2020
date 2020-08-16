@@ -27,7 +27,7 @@
 #include "yaw.h"
 #include "buttons4.h"
 #include "motor.h"
-//#include "control.h"
+#include "control.h"
 #include "display.h"
 
 #define BUF_SIZE            10
@@ -62,18 +62,17 @@ int main(void)
 //    { // (void *)1 is our pvParameters for our task func specifying PF_1
 //        while (1); // error creating task, out of memory?
 //    }
-
+    initButtonCheck();
     initADC();
     initYaw();
     initButtons();
-//    initSwitch_PC4();
+    initSwitch_PC4();
     initmotor();
     initDisplay();
 //    introLine();
     // Initialize the UART and configure it for 115,200, 8-N-1 operation.
     initialiseUSB_UART();
-    // Create Buffer
-    //initCircBuf(bufferLocation(), BUF_SIZE);
+    resetAltitude();
 
     // Create ADC Task
     if (pdTRUE != xTaskCreate(vADCSampleTask, "ADC Sampler", TASK_STACK_DEPTH, NULL, 2,
@@ -88,23 +87,17 @@ int main(void)
         while (1); // error creating task, out of memory?
     }
 
-//    if (pdTRUE != xTaskCreate(vYawTask, "Yaw", TASK_STACK_DEPTH, NULL, 3,
-//                           NULL))
-//    { // (void *)1 is our pvParameters for our task func specifying PF_1
-//        while (1); // error creating task, out of memory?
-//    }
-
-    if (pdTRUE != xTaskCreate(vButtonTask, "Buttons", TASK_STACK_DEPTH, NULL, 4,
+    if (pdTRUE != xTaskCreate(vButtonTask, "Buttons", TASK_STACK_DEPTH, NULL, 3,
                            NULL))
     { // (void *)1 is our pvParameters for our task func specifying PF_1
         while (1); // error creating task, out of memory?
     }
 
-//    if (pdTRUE != xTaskCreate(vControlTask, "Control", TASK_STACK_DEPTH, NULL, 3,
-//                               NULL))
-//    { // (void *)1 is our pvParameters for our task func specifying PF_1
-//        while (1); // error creating task, out of memory?
-//    }
+    if (pdTRUE != xTaskCreate(vControlTask, "Control", TASK_STACK_DEPTH, NULL, 4,
+                               NULL))
+    { // (void *)1 is our pvParameters for our task func specifying PF_1
+        while (1); // error creating task, out of memory?
+    }
 
     if (pdTRUE != xTaskCreate(vDisplayTask, "Display", 512, NULL, 3,
                            NULL))

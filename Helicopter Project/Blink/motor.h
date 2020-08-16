@@ -74,7 +74,12 @@ changeMainMotor(int change);
 void
 changeSecMotor(int change);
 
-//void
-//vMotorTask (void *pvParameters);
+uint32_t
+getMainPWM(void);
+
+uint32_t
+getTailPWM(void);
+
+
 
 #endif /* MOTOR_H_ */

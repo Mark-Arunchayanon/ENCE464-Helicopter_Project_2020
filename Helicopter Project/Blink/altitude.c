@@ -171,13 +171,13 @@ int32_t percentAltitude(void)
 
 void vADCSampleTask(void *pvParameters)
 {
-    TickType_t xDelay10s = pdMS_TO_TICKS(30);
+    TickType_t xDelay30s = pdMS_TO_TICKS(30);
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
     for ( ;; )
     {
-        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
+        vTaskDelayUntil(&xLastWakeTime, xDelay30s);
 
         ADCProcessorTrigger(ADC0_BASE, 3);
 

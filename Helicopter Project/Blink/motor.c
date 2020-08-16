@@ -80,12 +80,15 @@
 #define PWM_SEC_GPIO_CONFIG     GPIO_PF1_M1PWM5
 #define PWM_SEC_GPIO_PIN        GPIO_PIN_1
 
+static uint32_t mainPWM = 0;
+static uint32_t tailPWM = 0;
 /********************************************************
  * Function to set the freq, duty cycle of M0PWM7
  ********************************************************/
 void
 SetMainPWM (uint32_t ui32Duty)
 {
+    mainPWM = ui32Duty;
     // Calculate the PWM period corresponding to the freq.
     uint32_t ui32Period = SysCtlClockGet() / PWM_DIVIDER / PWM_RATE_HZ;
 
@@ -125,6 +128,7 @@ initialiseMainPWM (void)
 void
 SetTailPWM (uint32_t ui32Duty)
 {
+    tailPWM = ui32Duty;
     // Calculate the PWM period corresponding to the freq.
     uint32_t ui32Period =
         SysCtlClockGet() / PWM_DIVIDER / PWM_RATE_HZ;
@@ -171,6 +175,19 @@ resetmotor(void)
     SysCtlPeripheralReset (PWM_SEC_PERIPH_PWM);  // Main Rotor PWM
 }
 
+uint32_t
+getMainPWM(void)
+{
+    return mainPWM;
+}
+
+uint32_t
+getTailPWM(void)
+{
+    return tailPWM;
+}
+
+
 /********************************************************
 * initmotor
 * Initializes the main and secondary PWM modules
@@ -188,19 +205,3 @@ initmotor(void)
     PWMOutputState(PWM_SEC_BASE, PWM_SEC_OUTBIT, true);
 }
 
-//void vMotorTask (void *pvParameters)
-//{
-//    const TickType_t xDelay1s = pdMS_TO_TICKS(500);
-//        char statusStr[MAX_STR_LEN + 1];
-//
-//        for ( ;; )
-//        {
-//            SetMainPWM (1);
-//            SetTailPWM (1);
-//
-//            usprintf (statusStr, "Motor working \r\n");
-//            UARTSend (statusStr);
-//
-//            vTaskDelay(xDelay1s);
-//        }
-//}

@@ -60,11 +60,6 @@
 #define TAIL_OFFSET         30   //Tail offset
 #define MAIN_OFFSET         40   //Main offset
 
-
-// External variables
-extern int32_t percentAlt;
-extern int32_t degrees;
-
 //sets the intial value of the Altitude and
 extern int32_t AltRef =  ALT_REF_INIT;
 extern int32_t YawRef = YAW_REF_INIT;
@@ -103,12 +98,14 @@ void initSwitch_PC4(void)
 {
     // Initialise SW1
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA));
     GPIOPinTypeGPIOInput (GPIO_PORTA_BASE, GPIO_PIN_7);
     GPIOPadConfigSet (GPIO_PORTA_BASE, GPIO_PIN_7, GPIO_STRENGTH_2MA,
            GPIO_PIN_TYPE_STD_WPD);
 
     // Initialise PC4 used to find yaw ref
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOC);
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOC));
     GPIOPinTypeGPIOInput (GPIO_PORTC_BASE, GPIO_PIN_4);
     GPIODirModeSet(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_DIR_MODE_IN);
 
@@ -148,7 +145,7 @@ void GetSwitchState(void)
 // checkStability:      Checks if the helicopter has taken off, sets stable to true
 void checkStability(void)
 {
-    if(percentAlt >= 30) {
+    if(getAlt() >= 30) {
         stable = true;
     }
 }
@@ -195,7 +192,7 @@ int32_t GetYawRef(void)
 //                      If this is true, sets Altitude Reference to 50%
 void take_Off(void)
 {
-    if (degrees == 0) {
+    if (getYaw() == 0) {
         setAltRef(50);
     }
 }
@@ -228,9 +225,10 @@ void findYawRef(void)
 //                      If altitude is under 10%, shut off motors
 void landing(void)
 {
-    if ((degrees <= 5) && (degrees >= -5)) {
+    int32_t yaw = getYaw();
+    if ((yaw <= 5) && (yaw >= -5)) {
         if (mode == Landing) {
-            if (percentAlt >= 10) {
+            if (getAlt() >= 10) {
                 if (AltRef <= 0) {
                     setAltRef(0);
                 } else {
@@ -253,7 +251,7 @@ void PIDControlYaw(void)
 {
     if( (mode == TakeOff) || (mode == Flying) || (mode == Landing)) {
 
-        Yaw_error = YawRef - degrees;  // Calculates the yaw error
+        Yaw_error = YawRef - getYaw();  // Calculates the yaw error
 
         YawIntError += Yaw_error * DELTA_T;  //Integral error
         YawDerivError  = Yaw_error-YawPreviousError;  //Derivative error
@@ -280,7 +278,7 @@ void PIDControlAlt(void)
 {
     if ((mode == TakeOff) || (mode == Flying) || (mode == Landing)) {
 
-        Alt_error = AltRef - percentAlt;  //Calculates altitude error
+        Alt_error = AltRef - getAlt();  //Calculates altitude error
 
         AltIntError += Alt_error * DELTA_T;  //Integral error
         AltDerivError = (Alt_error-AltPreviousError) * 100;  //Derivative error
@@ -420,7 +418,7 @@ void helicopterStates(void){
 
     case Landing:
 
-        if (percentAlt == 0) {          //If altitude is at 0, change mode to landed
+        if (getAlt() == 0) {          //If altitude is at 0, change mode to landed
             mode = Landed;
         }
         break;
@@ -430,21 +428,23 @@ void helicopterStates(void){
 
 void vControlTask (void *pvParameters)
 {
-
-    const TickType_t xDelay1s = pdMS_TO_TICKS(10);
+    TickType_t xDelay10s = pdMS_TO_TICKS(10);
+    TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
     char statusStr[MAX_STR_LEN + 1];
 
     for ( ;; )
     {
-        helicopterStates();
-//        OutputToUART();
+        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
+
+//         ();
         GetSwitchState();
         PIDControlAlt();
         PIDControlYaw();
+        helicopterStates();
+//        OutputToUART();
+//        updateReset();
 
-        usprintf (statusStr, "Controlling\r\n");
-        UARTSend (statusStr);
 
-        vTaskDelay(xDelay1s);
     }
 }

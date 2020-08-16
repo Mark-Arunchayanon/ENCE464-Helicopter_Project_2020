@@ -146,7 +146,7 @@ checkButton (uint8_t butName)
 
 void vButtonTask (void *pvParameters)
 {
-    const TickType_t xDelay1s = pdMS_TO_TICKS(1000);
+    const TickType_t xDelay1s = pdMS_TO_TICKS(10);
     char statusStr[MAX_STR_LEN + 1];
 
     for ( ;; )

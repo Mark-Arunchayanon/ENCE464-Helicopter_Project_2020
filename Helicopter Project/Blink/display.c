@@ -29,9 +29,10 @@
 #include "OrbitOLED/lib_OrbitOled/OrbitOled.h"
 #include "altitude.h"
 #include "yaw.h"
-//#include "control.h"
+#include "control.h"
 #include "uart.h"
 #include "buttons4.h"
+#include "motor.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -130,6 +131,8 @@ void vDisplayTask (void *pvParameters)
 
         printString("Altitude = %4d%%", altReading, 0);
         printString("Yaw = %4d%%", yawReading, 1);
+        printString("Main PWM = %4d%%", getMainPWM(), 2);
+        printString("Tail PWM = %4d%%", getTailPWM(), 3);
 
 //        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r"
 //                "AltRef = %2d | YawRef = %2d |", percentAlt, degrees, AltRef, YawRef);
@@ -137,7 +140,9 @@ void vDisplayTask (void *pvParameters)
 //        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r", percentAlt, degrees);
 //        UARTSend (statusStr);
 
-        usprintf (statusStr, "AltRef = %2d | YawRef = %2d |", altReading, yawReading);
+        usprintf (statusStr, "\033[2J\033[H AltRef = %2d | YawRef = %2d |", altReading, yawReading);
+        UARTSend (statusStr);
+        usprintf (statusStr, "Main PWM = %2d | Tail PWM = %2d |", getMainPWM(), getTailPWM());
         UARTSend (statusStr);
 //        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
 //        UARTSend (statusStr);
