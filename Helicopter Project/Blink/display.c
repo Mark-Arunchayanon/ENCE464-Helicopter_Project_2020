@@ -130,7 +130,7 @@ void vDisplayTask (void *pvParameters)
         altReading = getAlt();
 
         printString("Altitude = %4d%%", altReading, 0);
-        printString("Yaw = %4d%%", yawReading, 1);
+        printString("Yaw      = %4d", yawReading, 1);
         printString("Main PWM = %4d%%", getMainPWM(), 2);
         printString("Tail PWM = %4d%%", getTailPWM(), 3);
 

@@ -49,7 +49,7 @@
 #define PWM_DUTY_MAX            95
 #define PWM_DUTY_MIN            5
 
-#define PWM_DIVIDER_CODE        SYSCTL_PWMDIV_4
+#define PWM_DIVIDER_CODE        SYSCTL_PWMDIV_4 //PWMDIV16 maybe
 #define PWM_DIVIDER             1
 
 //Second PWM Config
@@ -105,7 +105,9 @@ void
 initialiseMainPWM (void)
 {
     SysCtlPeripheralEnable(PWM_MAIN_PERIPH_PWM);
+    while(!SysCtlPeripheralReady(PWM_MAIN_PERIPH_PWM));
     SysCtlPeripheralEnable(PWM_MAIN_PERIPH_GPIO);
+    while(!SysCtlPeripheralReady(PWM_MAIN_PERIPH_GPIO));
 
     GPIOPinConfigure(PWM_MAIN_GPIO_CONFIG);
     GPIOPinTypePWM(PWM_MAIN_GPIO_BASE, PWM_MAIN_GPIO_PIN);
@@ -146,7 +148,9 @@ void
 initialiseTailPWM (void)
 {
     SysCtlPeripheralEnable(PWM_SEC_PERIPH_PWM);
+    while(!SysCtlPeripheralReady(PWM_SEC_PERIPH_PWM));
     SysCtlPeripheralEnable(PWM_SEC_PERIPH_GPIO);
+    while(!SysCtlPeripheralReady(PWM_SEC_PERIPH_GPIO));
 
     GPIOPinConfigure(PWM_SEC_GPIO_CONFIG);
     GPIOPinTypePWM(PWM_SEC_GPIO_BASE, PWM_SEC_GPIO_PIN);
@@ -195,8 +199,10 @@ getTailPWM(void)
 void
 initmotor(void)
 {
-    // As a precaution, make sure that the peripherals used are reset
+    SystCtlPWMClockSet()
 
+    // As a precaution, make sure that the peripherals used are reset
+    resetmotor();
     initialiseMainPWM ();
     initialiseTailPWM ();
 

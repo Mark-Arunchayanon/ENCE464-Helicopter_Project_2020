@@ -205,7 +205,7 @@ void take_Off(void)
 void findYawRef(void)
 {
     //Sets initial power percentages
-    SetMainPWM(25);
+    SetMainPWM(12);
     SetTailPWM(30);
 
     //Reads the PC4 values
@@ -431,13 +431,12 @@ void vControlTask (void *pvParameters)
     TickType_t xDelay10s = pdMS_TO_TICKS(10);
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
-    char statusStr[MAX_STR_LEN + 1];
+//    char statusStr[MAX_STR_LEN + 1];
 
     for ( ;; )
     {
         vTaskDelayUntil(&xLastWakeTime, xDelay10s);
 
-//         ();
         GetSwitchState();
         PIDControlAlt();
         PIDControlYaw();
