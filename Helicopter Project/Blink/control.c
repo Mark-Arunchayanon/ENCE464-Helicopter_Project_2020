@@ -16,13 +16,13 @@
 
 
 #include "stdlib.h"
+#include "driverlib/gpio.h"
 #include "driverlib/debug.h"
 #include "utils/ustdlib.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "driverlib/pin_map.h" //Needed for pin configure
 #include "driverlib/debug.h"
-#include "driverlib/gpio.h"
 #include "driverlib/pwm.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/interrupt.h"
@@ -92,6 +92,8 @@ typedef enum {Landed, Initialising, TakeOff, Flying, Landing} mode_type;
 mode_type mode = Landed;  //Initial mode is landed
 
 
+void YawRefIntHandler(void);
+
 // *******************************************************
 // initSwitch_PC4:      Initialises and sets up switch on PC4
 void initSwitch_PC4(void)
@@ -108,6 +110,12 @@ void initSwitch_PC4(void)
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOC));
     GPIOPinTypeGPIOInput (GPIO_PORTC_BASE, GPIO_PIN_4);
     GPIODirModeSet(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_DIR_MODE_IN);
+
+    GPIOPadConfigSet(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+    GPIOIntTypeSet(GPIO_PORTC_BASE, GPIO_PIN_4, GPIO_FALLING_EDGE); //Trigger interrupts on both edges of wave changes on PC4
+    GPIOIntEnable(GPIO_PORTC_BASE, GPIO_INT_PIN_4); //Enable interrupts from PC4
+    GPIOIntRegister(GPIO_PORTC_BASE, YawRefIntHandler); //If interrupt occurs, run YawRefIntHandler
+    IntEnable(INT_GPIOC); //Enable interrupts on C.
 
     //Initialise reset button
     GPIOPinTypeGPIOInput (GPIO_PORTA_BASE, GPIO_PIN_6);
@@ -202,19 +210,30 @@ void take_Off(void)
 // findYawRef:          Turns on main and tail motor. Spins the helicopter clockwise
 //                      and  reads PC4 to check if the helicopter is at the reference
 //                      Once the reference is found, resets yaw reference to 0 and current yaw to 0
-void findYawRef(void)
-{
+//void findYawRef(void)
+//{
+//
+//    //Reads the PC4 values
+//    PC4Read = GPIOPinRead(GPIO_PORTC_BASE, GPIO_PIN_4);
+//    // GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
+//    if(PC4Read == 0) {
+//        ref_Found = true; //Origin Found
+//        resetYaw(); //Reset current yaw value to 0
+//        setYawRef(0); // Resets yaw reference to 0
+//    }
+//}
 
-    //Reads the PC4 values
-    PC4Read = GPIOPinRead(GPIO_PORTC_BASE, GPIO_PIN_4);
-    // GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
-    if(PC4Read == 0) {
+void YawRefIntHandler(void)
+{
+    GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
+
+    if (ref_Found == false)
+    {
         ref_Found = true; //Origin Found
         resetYaw(); //Reset current yaw value to 0
         setYawRef(0); // Resets yaw reference to 0
     }
 }
-
 
 // *******************************************************
 // landing:             Once yaw is within 5 degrees of 0,
@@ -222,22 +241,24 @@ void findYawRef(void)
 //                      If altitude is under 10%, shut off motors
 void landing(void)
 {
-    int32_t yaw = getYaw();
-    if ((yaw <= 5) && (yaw >= -5)) {
-        if (mode == Landing) {
-            if (getAlt() >= 10) {
-                if (AltRef <= 0) {
-                    setAltRef(0);
-                } else {
-                    setAltRef(AltRef - 5);
-                }
-            } else {
-                //Turns off both motors
-                SetMainPWM(0);
-                SetTailPWM(0);
-            }
-        }
-    }
+//    int32_t yaw = getYaw();
+//    if ((yaw <= 5) && (yaw >= -5)) {
+//        if (mode == Landing) {
+//            if (getAlt() >= 10) {
+//                if (AltRef <= 0) {
+//                    setAltRef(0);
+//                } else {
+//                    setAltRef(AltRef - 5);
+//                }
+//            } else {
+//                //Turns off both motors
+//                SetMainPWM(0);
+//                SetTailPWM(0);
+//            }
+//        }
+//    }
+    SetMainPWM(0);
+    SetTailPWM(0);
 }
 
 
@@ -385,14 +406,14 @@ void helicopterStates(void){
             resetIntControl();                 //Reset any previous error terms
 
             //Sets initial power percentages
-            SetMainPWM(30);
-            SetTailPWM(20);
+            SetMainPWM(5);
+            SetTailPWM(40);
         }
         break;
 
     case Initialising:
 
-        findYawRef();                          //Spins clockwise until the reference point is found
+//        findYawRef();                          //Spins clockwise until the reference point is found
         if(ref_Found) {
             mode = TakeOff;
             ref_Found = false;//Change mode to takeoff once the reference point is found
@@ -419,6 +440,7 @@ void helicopterStates(void){
         break;
 
     case Landing:
+        landing();
 
         if (getAlt() == 0) {          //If altitude is at 0, change mode to landed
             mode = Landed;

@@ -66,13 +66,15 @@ int main(void)
     initADC();
     initYaw();
     initButtons();
-    initSwitch_PC4();
+
     initmotor();
     initDisplay();
 //    introLine();
     // Initialize the UART and configure it for 115,200, 8-N-1 operation.
     initialiseUSB_UART();
     resetAltitude();
+    initSwitch_PC4();
+    IntMasterEnable();
 
     // Create ADC Task
     if (pdTRUE != xTaskCreate(vADCSampleTask, "ADC Sampler", TASK_STACK_DEPTH, NULL, 2,

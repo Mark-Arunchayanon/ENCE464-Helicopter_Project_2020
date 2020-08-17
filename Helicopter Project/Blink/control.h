@@ -77,8 +77,11 @@ take_Off(void);
 // findYawRef:          Turns on main and tail motor. Spins the helicopter clockwise
 //                      and  reads PC4 to check if the helicopter is at the reference
 //                      Once the reference is found, resets yaw reference to 0 and current yaw to 0
+//void
+//findYawRef(void);
+
 void
-findYawRef(void);
+YawRefIntHandler(void);
 
 
 // *******************************************************
