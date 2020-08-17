@@ -39,7 +39,10 @@
 #include "semphr.h"
 
 
-
+extern int32_t button_debug_up;
+extern int32_t button_debug_down;
+extern int32_t button_debug_left;
+extern int32_t button_debug_right;
 //extern int32_t percentAlt;
 //extern int32_t degrees;
 
@@ -140,9 +143,16 @@ void vDisplayTask (void *pvParameters)
 //        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r", percentAlt, degrees);
 //        UARTSend (statusStr);
 
-        usprintf (statusStr, "\033[2J\033[H AltRef = %2d | YawRef = %2d |", altReading, yawReading);
+        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |", altReading, yawReading);
         UARTSend (statusStr);
-        usprintf (statusStr, "Main PWM = %2d | Tail PWM = %2d |", getMainPWM(), getTailPWM());
+        usprintf (statusStr, "Main PWM = %2d | Tail PWM = %2d |\n\r", getMainPWM(), getTailPWM());
+        UARTSend (statusStr);
+        usprintf (statusStr, "Alt Ref = %2d | Yaw Ref = %2d |\n\r", GetAltRef(), GetYawRef());
+        UARTSend (statusStr);
+        usprintf (statusStr, "Mode: %s | 360 Yaw: %d\n\r", getMode(), getYaw360());
+        UARTSend (statusStr);
+        usprintf (statusStr, "Button up: %d | Button down: %d | Button left: %d | Button right: %d",
+                  button_debug_up, button_debug_down, button_debug_left, button_debug_right);
         UARTSend (statusStr);
 //        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
 //        UARTSend (statusStr);

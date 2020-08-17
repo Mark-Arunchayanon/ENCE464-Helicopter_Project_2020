@@ -35,6 +35,11 @@ static uint8_t but_count[NUM_BUTS];
 static bool but_flag[NUM_BUTS];
 static bool but_normal[NUM_BUTS];   // Corresponds to the electrical state
 
+int32_t button_debug_up = 0;
+int32_t button_debug_down = 0;
+int32_t button_debug_left = 0;
+int32_t button_debug_right = 0;
+
 // *******************************************************
 // initButtons:     Initialise the variables associated with the set of buttons
 //                  defined by the constants in the buttons2.h header file.
@@ -118,6 +123,22 @@ updateButtons (void)
         		but_state[i] = but_value[i];
         		but_flag[i] = true;	   // Reset by call to checkButton()
         		but_count[i] = 0;
+        		if (but_flag[UP] == true)
+        		{
+        		    button_debug_up++;
+        		}
+        		if (but_flag[DOWN] == true)
+                {
+                    button_debug_down++;
+                }
+        		if (but_flag[LEFT] == true)
+                {
+                    button_debug_left++;
+                }
+                if (but_flag[RIGHT] == true)
+                {
+                    button_debug_right++;
+                }
         	}
         }
         else

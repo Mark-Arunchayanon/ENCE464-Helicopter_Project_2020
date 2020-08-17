@@ -63,9 +63,9 @@ int main(void)
 //        while (1); // error creating task, out of memory?
 //    }
     initButtonCheck();
+
     initADC();
     initYaw();
-    initButtons();
 
     initmotor();
     initDisplay();
@@ -73,6 +73,7 @@ int main(void)
     // Initialize the UART and configure it for 115,200, 8-N-1 operation.
     initialiseUSB_UART();
     resetAltitude();
+    initButtons();
     initSwitch_PC4();
     IntMasterEnable();
 

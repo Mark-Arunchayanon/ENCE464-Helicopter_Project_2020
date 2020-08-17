@@ -47,13 +47,13 @@
 #define YAW_REF_INIT        0    //Initial yaw reference
 #define YAW_STEP_RATE       15   //Yaw step rate
 
-#define ALT_PROP_CONTROL    0.7  //Altitude PID control
-#define ALT_INT_CONTROL     0.2
-#define ALT_DIF_CONTROL     0.2
+#define ALT_PROP_CONTROL    0.2  //Altitude PID control
+#define ALT_INT_CONTROL     0.03
+#define ALT_DIF_CONTROL     1.0
 
-#define YAW_PROP_CONTROL    0.4  //Yaw PID control
-#define YAW_INT_CONTROL     0.1
-#define YAW_DIF_CONTROL     0.5
+#define YAW_PROP_CONTROL    0.6  //Yaw PID control
+#define YAW_INT_CONTROL     0.05
+#define YAW_DIF_CONTROL     1.5
 
 #define DELTA_T             0.01 // 1/SYS_TICK_RATE
 
@@ -406,7 +406,7 @@ void helicopterStates(void){
             resetIntControl();                 //Reset any previous error terms
 
             //Sets initial power percentages
-            SetMainPWM(5);
+            SetMainPWM(15);
             SetTailPWM(40);
         }
         break;

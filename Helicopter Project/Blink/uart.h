@@ -33,7 +33,7 @@
 #define SLOWTICK_RATE_HZ 4
 #define MAX_STR_LEN 50 //used to be 16
 //---USB Serial comms: UART0, Rx:PA0 , Tx:PA1
-#define BAUD_RATE 115200
+#define BAUD_RATE 9600
 #define UART_USB_BASE           UART0_BASE
 #define UART_USB_PERIPH_UART    SYSCTL_PERIPH_UART0
 #define UART_USB_PERIPH_GPIO    SYSCTL_PERIPH_GPIOA

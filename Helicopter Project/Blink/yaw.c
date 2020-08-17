@@ -63,6 +63,15 @@ int32_t getYaw(void) {
     return angle;
 }
 
+int32_t getYaw360(void)
+{
+    int32_t angle = 0;
+    int32_t refnum = slot;
+
+    angle = (2* (TOTAL_ANGLE * refnum)  + NUM_SLOTS) / 2 / NUM_SLOTS;
+
+    return angle % TOTAL_ANGLE;
+}
 
 // *******************************************************
 // resetYaw:        Resets the slot number to 0
