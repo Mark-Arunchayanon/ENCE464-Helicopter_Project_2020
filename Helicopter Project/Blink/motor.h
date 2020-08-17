@@ -16,8 +16,8 @@
 #define PWM_DUTY_MAX            95
 #define PWM_DUTY_MIN            5
 
-#define PWM_DIVIDER_CODE        SYSCTL_PWMDIV_4
-#define PWM_DIVIDER             1
+#define PWM_DIVIDER_CODE        SYSCTL_PWMDIV_16
+#define PWM_DIVIDER             16
 
 //Second PWM Config
 #define PWM_SEC_START_DUTY      0 //10

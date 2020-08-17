@@ -16,10 +16,10 @@
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
 #include "driverlib/pin_map.h" //Needed for pin configure
+#include "driverlib/sysctl.h"
 #include "driverlib/debug.h"
 #include "driverlib/gpio.h"
 #include "driverlib/pwm.h"
-#include "driverlib/sysctl.h"
 #include "driverlib/interrupt.h"
 #include "buttons4.h"
 
@@ -49,12 +49,12 @@
 #define PWM_DUTY_MAX            95
 #define PWM_DUTY_MIN            5
 
-#define PWM_DIVIDER_CODE        SYSCTL_PWMDIV_4 //PWMDIV16 maybe
-#define PWM_DIVIDER             1
+//#define PWM_DIVIDER_CODE        SYSCTL_PWMDIV_16 //PWMDIV16 maybe
+//#define PWM_DIVIDER             16
 
 //Second PWM Config
-#define PWM_SEC_START_DUTY      0 //10
-#define PWM_MAIN_START_DUTY     0 //50
+//#define PWM_SEC_START_DUTY      50 //10
+//#define PWM_MAIN_START_DUTY     50 //50
 
 //  PWM Hardware Details M0PWM7 (gen 3)
 //  ---Main Rotor PWM: PC5, J4-05
@@ -199,10 +199,10 @@ getTailPWM(void)
 void
 initmotor(void)
 {
-    SystCtlPWMClockSet()
-
     // As a precaution, make sure that the peripherals used are reset
     resetmotor();
+
+    SysCtlPWMClockSet(PWM_DIVIDER_CODE);
     initialiseMainPWM ();
     initialiseTailPWM ();
 

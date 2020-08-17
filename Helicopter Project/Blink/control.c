@@ -204,14 +204,11 @@ void take_Off(void)
 //                      Once the reference is found, resets yaw reference to 0 and current yaw to 0
 void findYawRef(void)
 {
-    //Sets initial power percentages
-    SetMainPWM(12);
-    SetTailPWM(30);
 
     //Reads the PC4 values
     PC4Read = GPIOPinRead(GPIO_PORTC_BASE, GPIO_PIN_4);
-    GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
-    if(PC4Read < 16) {
+    // GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
+    if(PC4Read == 0) {
         ref_Found = true; //Origin Found
         resetYaw(); //Reset current yaw value to 0
         setYawRef(0); // Resets yaw reference to 0
@@ -386,6 +383,10 @@ void helicopterStates(void){
         if (switchState == 1 && !paralysed) {  //If switch is flicked on and the helicopter is not paralysed
             mode = Initialising;               // Change mode to Initialising
             resetIntControl();                 //Reset any previous error terms
+
+            //Sets initial power percentages
+            SetMainPWM(30);
+            SetTailPWM(20);
         }
         break;
 
@@ -393,7 +394,8 @@ void helicopterStates(void){
 
         findYawRef();                          //Spins clockwise until the reference point is found
         if(ref_Found) {
-            mode = TakeOff;                    //Change mode to takeoff once the reference point is found
+            mode = TakeOff;
+            ref_Found = false;//Change mode to takeoff once the reference point is found
         }
         break;
 
