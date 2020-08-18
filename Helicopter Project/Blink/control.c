@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "math.h"
 
 #include "stdlib.h"
 #include "driverlib/gpio.h"
@@ -38,6 +39,7 @@
 #include "semphr.h"
 #include "task.h"
 #include "uart.h"
+#include "timers.h"
 
 #define ALT_REF_INIT        0    //Initial altitude reference
 #define ALT_STEP_RATE       10   //Altitude step rate
@@ -47,9 +49,20 @@
 #define YAW_REF_INIT        0    //Initial yaw reference
 #define YAW_STEP_RATE       15   //Yaw step rate
 
-#define ALT_PROP_CONTROL    0.2  //Altitude PID control
-#define ALT_INT_CONTROL     0.03
-#define ALT_DIF_CONTROL     1.0
+// Helirig 1
+#define ALT_PROP_CONTROL    0.7  //Altitude PID control
+#define ALT_INT_CONTROL     0.2
+#define ALT_DIF_CONTROL     0.6
+
+// Helirig 3
+//#define ALT_PROP_CONTROL    1.0  //Altitude PID control
+//#define ALT_INT_CONTROL     1.0
+//#define ALT_DIF_CONTROL     1.0
+
+//// Milestone
+//#define ALT_PROP_CONTROL    0.6  //Altitude PID control
+//#define ALT_INT_CONTROL     0.16
+//#define ALT_DIF_CONTROL     0.4 // 0.2 had a lot of overshoot
 
 #define YAW_PROP_CONTROL    0.6  //Yaw PID control
 #define YAW_INT_CONTROL     0.05
@@ -57,8 +70,13 @@
 
 #define DELTA_T             0.01 // 1/SYS_TICK_RATE
 
-#define TAIL_OFFSET         30   //Tail offset
+#define TAIL_OFFSET         35   //Tail offset
 #define MAIN_OFFSET         40   //Main offset
+
+#define MODE_CHANGE_TIME    500   //The time before flipping the switch will
+                                 //land the heli instead of swapping mode.
+
+#define TOTAL_ANGLE         360
 
 //sets the intial value of the Altitude and
 extern int32_t AltRef =  ALT_REF_INIT;
@@ -86,13 +104,24 @@ uint32_t PC4Read = 0;
 uint32_t switchState = 0;
 bool stable = false, paralysed = true, ref_Found = false;
 
+TimerHandle_t switchTimer;
+bool timerResetFlag = false;
+bool spiralSetUp = false;
+bool spinSetUp = false;
+int32_t error;
+
+typedef enum {Normal, SpiralUp, SpiralDown, Spin180Left, Spin180Right}specialMode;
+specialMode specialTrick = Normal;
+
 // *******************************************************
 // Declaring modes Landed, Initialising, TakeOff, Flying and Landing
-typedef enum {Landed, Initialising, TakeOff, Flying, Landing} mode_type;
+typedef enum {Landed, Initialising, TakeOff, Flying, Special, Landing} mode_type;
 mode_type mode = Landed;  //Initial mode is landed
 
 
 void YawRefIntHandler(void);
+
+void switchTimerExpire(TimerHandle_t pxTimer);
 
 // *******************************************************
 // initSwitch_PC4:      Initialises and sets up switch on PC4
@@ -120,8 +149,15 @@ void initSwitch_PC4(void)
     //Initialise reset button
     GPIOPinTypeGPIOInput (GPIO_PORTA_BASE, GPIO_PIN_6);
     GPIODirModeSet(GPIO_PORTA_BASE, GPIO_PIN_6, GPIO_DIR_MODE_IN);
-}
 
+    // Initialise switch timer
+    switchTimer = xTimerCreate("switch timer", pdMS_TO_TICKS(MODE_CHANGE_TIME), pdFALSE, 0, switchTimerExpire);
+    if(switchTimer == NULL)
+    {
+        while(1);
+    }
+
+}
 
 // *******************************************************
 // updateReset:         Reads the reset button, reset system if reset is pushed
@@ -143,8 +179,19 @@ void GetSwitchState(void)
     switchState = GPIOPinRead (GPIO_PORTA_BASE, GPIO_PIN_7) / 128;
     GPIOIntClear(GPIO_PORTA_BASE, GPIO_PIN_7);
 
-    if((mode == Landed) && (switchState == 0) && paralysed) {
+    if((mode == Landed) && (switchState == 0) && paralysed)
+    {
         paralysed = false;
+    }
+    if ((mode == Flying || mode == Special) && (switchState == 0)) {
+        if(timerResetFlag == false)
+        {
+            if (xTimerReset(switchTimer, portMAX_DELAY) != pdPASS)
+            {
+                while(1);
+            }
+            timerResetFlag = true;
+        }
     }
 }
 
@@ -159,12 +206,24 @@ void checkStability(void)
 }
 
 
+int32_t clamp(int32_t x, int32_t min, int32_t max)
+{
+    int32_t value = x;
+    if(value > max)
+    {
+        value = max;
+    } else if(value < min){
+        value = min;
+    }
+    return value;
+}
+
 // *******************************************************
 // setAltRef:           Sets the altitude reference
 // TAKES:               New altitude reference as a percentage
 void setAltRef(int32_t newAltRef)
 {
-    AltRef = newAltRef;
+    AltRef = clamp(newAltRef, 10, 100);
 }
 
 
@@ -173,6 +232,18 @@ void setAltRef(int32_t newAltRef)
 // TAKES:               newYawRef, the new yaw reference as a percentage
 void setYawRef(int32_t newYawRef)
 {
+    if(newYawRef == 0)
+    {
+        int32_t reference = newYawRef;
+        int32_t yaw = getYawTotal() % TOTAL_ANGLE;
+        if(yaw > 180)
+        {
+            YawRef = reference + (360 - yaw);
+        }else {
+            YawRef = reference - yaw;
+        }
+    }
+
     YawRef = newYawRef;
 }
 
@@ -200,12 +271,143 @@ int32_t GetYawRef(void)
 //                      If this is true, sets Altitude Reference to 50%
 void take_Off(void)
 {
-    if (getYaw() == 0) {
+    int32_t yaw = getYaw();
+    if (abs(yaw) < 10) {
         setAltRef(50);
     }
 }
 
 
+void specialButtonMode(void)
+{
+    int32_t currentYaw = getYawTotal();
+    int32_t currentAlt = getAlt();
+    if(mode == Special)
+    {
+        if (checkButton (UP) == PUSHED)
+        {
+            specialTrick = SpiralUp;
+        }
+        if (checkButton (DOWN) == PUSHED)
+        {
+            specialTrick = SpiralDown;
+        }
+        if (checkButton (LEFT) == PUSHED )
+        {
+            specialTrick = Spin180Left;
+        }
+        if (checkButton (RIGHT) == PUSHED)
+        {
+            specialTrick = Spin180Right;
+        }
+    }
+}
+
+void spiralTrick(void)
+{
+    if(specialTrick == SpiralUp)
+    {
+        int32_t currentYaw = getYawTotal();
+        int32_t currentAlt = getAlt();
+
+        if(spiralSetUp == false)
+        {
+            setYawRef(0);
+            setAltRef(10);
+            if(currentAlt == 10)
+            {
+                spiralSetUp = true;
+            }
+        }
+
+        if(spiralSetUp == true)
+        {
+            if (currentAlt == 90 && (currentYaw % TOTAL_ANGLE) == 0)
+            {
+                spiralSetUp = false;
+                specialTrick = Normal;
+            } else {
+                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
+                {
+                    setAltRef(GetAltRef() + 10);
+                    setYawRef(GetYawRef() + 45);
+                }
+            }
+
+        }
+    } else if(specialTrick == SpiralDown)
+    {
+        int32_t currentYaw = getYawTotal();
+        int32_t currentAlt = getAlt();
+
+        if(spiralSetUp == false)
+        {
+            setYawRef(0);
+            setAltRef(90);
+            if(currentAlt == 90)
+            {
+                spiralSetUp = true;
+            }
+        }
+
+        if(spiralSetUp == true)
+        {
+            if (currentAlt == 10 && (currentYaw % TOTAL_ANGLE) == 0)
+            {
+                spiralSetUp = false;
+                specialTrick = Normal;
+            } else {
+                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
+                {
+                    setAltRef(GetAltRef() - 10);
+                    setYawRef(GetYawRef() - 45);
+                }
+            }
+
+        }
+    }
+}
+
+
+// Here I switched around the + and - on Left and Right to match in IRL. Right now, spint right goes out of control, yaw keeps going doesnt stop
+void spinTrick(void)
+{
+    if(specialTrick == Spin180Left)
+    {
+        int32_t currentYaw = getYawTotal();
+
+        if(spinSetUp == false)
+        {
+            error = currentYaw - 180;
+            spinSetUp = true;
+        }
+
+        if(GetYawRef() != error)
+        {
+            setYawRef(currentYaw - 15);
+        } else {
+            spinSetUp = false;
+            specialTrick = Normal;
+        }
+    } else if(specialTrick == Spin180Right)
+    {
+        int32_t currentYaw = getYawTotal();
+
+        if(spinSetUp == false)
+        {
+            error = currentYaw + 180;
+            spinSetUp = true;
+        }
+
+        if(GetYawRef() != error)
+        {
+            setYawRef(currentYaw + 15);
+        } else {
+            spinSetUp = false;
+            specialTrick = Normal;
+        }
+    }
+}
 // *******************************************************
 // findYawRef:          Turns on main and tail motor. Spins the helicopter clockwise
 //                      and  reads PC4 to check if the helicopter is at the reference
@@ -241,24 +443,30 @@ void YawRefIntHandler(void)
 //                      If altitude is under 10%, shut off motors
 void landing(void)
 {
-//    int32_t yaw = getYaw();
-//    if ((yaw <= 5) && (yaw >= -5)) {
-//        if (mode == Landing) {
-//            if (getAlt() >= 10) {
-//                if (AltRef <= 0) {
-//                    setAltRef(0);
-//                } else {
-//                    setAltRef(AltRef - 5);
-//                }
-//            } else {
-//                //Turns off both motors
-//                SetMainPWM(0);
-//                SetTailPWM(0);
-//            }
-//        }
-//    }
-    SetMainPWM(0);
-    SetTailPWM(0);
+
+    if (YawRef != 0)
+    {
+        setYawRef(0);
+    }
+
+    int32_t currentYaw = getYaw();
+    int32_t currentAlt = getAlt();
+    if (abs(currentYaw) < 10)
+    {
+        if (currentAlt > 10)
+        {
+            setAltRef(currentAlt - 15);
+        }
+        else
+        {
+            SetMainPWM(0);
+            SetTailPWM(0);
+        }
+    } else {
+        setAltRef(30);
+    }
+
+
 }
 
 
@@ -267,9 +475,17 @@ void landing(void)
 //                      Ensures the yaw follows the yaw reference
 void PIDControlYaw(void)
 {
-    if( (mode == TakeOff) || (mode == Flying) || (mode == Landing)) {
+    if( (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing))
+    {
+        int32_t currentYaw = 0;
+        if (mode == Landing)
+        {
+            currentYaw = getYaw();
+        } else {
+            currentYaw = getYawTotal();
+        }
 
-        Yaw_error = YawRef - getYaw();  // Calculates the yaw error
+        Yaw_error = YawRef - currentYaw;  // Calculates the yaw error
 
         YawIntError += Yaw_error * DELTA_T;  //Integral error
         YawDerivError  = Yaw_error-YawPreviousError;  //Derivative error
@@ -279,9 +495,8 @@ void PIDControlYaw(void)
                     + YawDerivError * YAW_DIF_CONTROL
                     + TAIL_OFFSET;
 
-        if (YawControl > 85) {  //Maximum is 85%
-            YawControl -= 25;
-        }
+
+        YawControl = clamp(YawControl, 5, 90);
         SetTailPWM(YawControl);  //Sets the tail duty cycle
         YawPreviousError = Yaw_error;
         tailDuty = YawControl;
@@ -294,7 +509,7 @@ void PIDControlYaw(void)
 //                      Ensures the altitude follows the altitude reference
 void PIDControlAlt(void)
 {
-    if ((mode == TakeOff) || (mode == Flying) || (mode == Landing)) {
+    if ((mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing)) {
 
         Alt_error = AltRef - getAlt();  //Calculates altitude error
 
@@ -306,9 +521,8 @@ void PIDControlAlt(void)
                     + AltDerivError * ALT_DIF_CONTROL
                     + MAIN_OFFSET;
 
-        if (AltControl > 85) {  //Maximum duty cycle of 85%
-            AltControl -= 25;
-        }
+        AltControl = clamp(AltControl, 10, 90);
+
         SetMainPWM(AltControl);  //Sets the main duty cycle
         AltPreviousError = Alt_error;
         mainDuty = AltControl;
@@ -345,6 +559,7 @@ char* getMode(void)
     case Initialising: return "Initialising";
     case TakeOff:  return "TakeOff";
     case Flying: return"Flying";
+    case Special: return"Special";
     case Landing: return "Landing";
     }
 
@@ -375,11 +590,11 @@ void RefUpdate(void)
     if(mode == Flying) {
         if ((checkButton (UP) == PUSHED) && (AltRef < ALT_MAX))
         {
-            AltRef += ALT_STEP_RATE;
+            setAltRef(GetAltRef() + ALT_STEP_RATE);
         }
         if ((checkButton (DOWN) == PUSHED) && (AltRef > ALT_MIN))
         {
-            AltRef -= ALT_STEP_RATE;
+            setAltRef(GetAltRef() - ALT_STEP_RATE);
         }
         if (checkButton (LEFT) == PUSHED )
         {
@@ -407,7 +622,7 @@ void helicopterStates(void){
 
             //Sets initial power percentages
             SetMainPWM(15);
-            SetTailPWM(40);
+            SetTailPWM(25);
         }
         break;
 
@@ -432,11 +647,13 @@ void helicopterStates(void){
     case Flying:
 
         RefUpdate();                           //Checks if for button pushes and alter references
+        break;
 
-        if(switchState == 0) {                 //If the switch is flicked down then begin the landing process
-            mode = Landing;
-            setYawRef(0);                      //Set yaw reference to 0
-        }
+    case Special:
+
+        specialButtonMode();
+        spiralTrick();
+        spinTrick();
         break;
 
     case Landing:
@@ -455,7 +672,6 @@ void vControlTask (void *pvParameters)
     TickType_t xDelay10s = pdMS_TO_TICKS(10);
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
-//    char statusStr[MAX_STR_LEN + 1];
 
     for ( ;; )
     {
@@ -465,9 +681,28 @@ void vControlTask (void *pvParameters)
         PIDControlAlt();
         PIDControlYaw();
         helicopterStates();
-//        OutputToUART();
-//        updateReset();
-
 
     }
+}
+
+// The handler for the switch timer. Should switch to landing mode or the second control mode.
+void switchTimerExpire(TimerHandle_t pxTimer)
+{
+    if (switchState == 0)
+    {
+        mode = Landing;
+        setYawRef(0);                      //Set yaw reference to 0
+    }
+    else
+    {
+        if (mode == Flying)
+        {
+            mode = Special;
+        }
+        else if (mode == Special)
+        {
+            mode = Flying;
+        }
+    }
+    timerResetFlag = false;
 }

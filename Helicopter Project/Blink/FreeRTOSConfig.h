@@ -41,6 +41,14 @@
 
 #define INCLUDE_vTaskDelay 1
 
+#define configUSE_TIMERS 1
+
+#define configTIMER_TASK_PRIORITY 1
+
+#define configTIMER_QUEUE_LENGTH 5
+
+#define configTIMER_TASK_STACK_DEPTH 128
+
 #define configUSE_16_BIT_TICKS 0 // not sure what this is
 
 #define configKERNEL_INTERRUPT_PRIORITY (7 << 5) // Lowest priority for RTOS periodic interrupts

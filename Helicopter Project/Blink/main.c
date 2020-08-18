@@ -44,7 +44,7 @@
 //void BlinkLED(void *);
 
 int main(void)
- {
+{
     // Set the clock rate to 80 MHz
     SysCtlClockSet (SYSCTL_SYSDIV_2_5 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN |
      SYSCTL_XTAL_16MHZ);
@@ -63,14 +63,10 @@ int main(void)
 //        while (1); // error creating task, out of memory?
 //    }
     initButtonCheck();
-
     initADC();
     initYaw();
-
     initmotor();
     initDisplay();
-//    introLine();
-    // Initialize the UART and configure it for 115,200, 8-N-1 operation.
     initialiseUSB_UART();
     resetAltitude();
     initButtons();

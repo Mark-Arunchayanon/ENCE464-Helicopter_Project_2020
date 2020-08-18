@@ -12,7 +12,7 @@
  * Constants
  **********************************************************/
 // PWM configuration
-#define PWM_RATE_HZ             300
+#define PWM_RATE_HZ             200
 #define PWM_DUTY_MAX            95
 #define PWM_DUTY_MIN            5
 

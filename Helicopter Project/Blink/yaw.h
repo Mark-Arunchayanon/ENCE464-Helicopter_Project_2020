@@ -24,7 +24,7 @@ getYaw(void);
 
 
 int32_t
-getYaw360(void);
+getYawTotal(void);
 
 // *******************************************************
 // resetYaw:        Resets the slot number to 0

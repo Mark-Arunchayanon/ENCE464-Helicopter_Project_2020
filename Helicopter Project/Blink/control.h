@@ -14,6 +14,8 @@
 #define CONTROL_H_
 
 #include <stdint.h>
+#include "FreeRTOS.h"
+#include "timers.h"
 
 
 // *******************************************************
@@ -39,6 +41,9 @@ GetSwitchState(void);
 // checkStability:      Checks if the helicopter has taken off, sets stable to true
 void
 checkStability(void);
+
+int32_t
+clamp(int32_t x, int32_t min, int32_t max);
 
 // *******************************************************
 // setAltRef:           Sets the altitude reference
@@ -72,6 +77,13 @@ GetYawRef(void);
 //                      If this is true, sets Altitude Reference to 50%
 void
 take_Off(void);
+
+
+void
+specialButtonMode(void);
+
+void
+spiralTrick(void);
 
 // *******************************************************
 // findYawRef:          Turns on main and tail motor. Spins the helicopter clockwise
@@ -146,5 +158,7 @@ helicopterStates(void);
 void
 vControlTask (void *pvParameters);
 
+void
+switchTimerExpire(TimerHandle_t pxTimer);
 
 #endif /* CONTROL_H_ */
