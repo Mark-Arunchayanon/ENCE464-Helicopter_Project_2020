@@ -49,29 +49,20 @@
 #define YAW_REF_INIT        0    //Initial yaw reference
 #define YAW_STEP_RATE       15   //Yaw step rate
 
-// Helirig 1
-#define ALT_PROP_CONTROL    0.7  //Altitude PID control
-#define ALT_INT_CONTROL     0.2
-#define ALT_DIF_CONTROL     0.6
+// 0.3, 0.08, 1.0 @40 best gains found out____________________________________________ better 0.5 0.05 1.5 @20
+#define ALT_PROP_CONTROL    0.5 //Altitude PID control was 0.4
+#define ALT_INT_CONTROL     0.05
+#define ALT_DIF_CONTROL     1.5
 
-// Helirig 3
-//#define ALT_PROP_CONTROL    1.0  //Altitude PID control
-//#define ALT_INT_CONTROL     1.0
-//#define ALT_DIF_CONTROL     1.0
-
-//// Milestone
-//#define ALT_PROP_CONTROL    0.6  //Altitude PID control
-//#define ALT_INT_CONTROL     0.16
-//#define ALT_DIF_CONTROL     0.4 // 0.2 had a lot of overshoot
-
-#define YAW_PROP_CONTROL    0.6  //Yaw PID control
-#define YAW_INT_CONTROL     0.05
-#define YAW_DIF_CONTROL     1.5
+//Yaw PID control YAAWWWWWWWWWWWWW_______________________________________________ 0.8 0.04 1.6 @20
+#define YAW_PROP_CONTROL    0.4
+#define YAW_INT_CONTROL     0.04
+#define YAW_DIF_CONTROL     1.0
 
 #define DELTA_T             0.01 // 1/SYS_TICK_RATE
 
-#define TAIL_OFFSET         35   //Tail offset
-#define MAIN_OFFSET         40   //Main offset
+#define TAIL_OFFSET         15   //Tail offset 20
+#define MAIN_OFFSET         20   //Main offset 40
 
 #define MODE_CHANGE_TIME    500   //The time before flipping the switch will
                                  //land the heli instead of swapping mode.
@@ -83,21 +74,21 @@ extern int32_t AltRef =  ALT_REF_INIT;
 extern int32_t YawRef = YAW_REF_INIT;
 
 //Sets integral error variables
-static int32_t AltIntError = 0;
-static int32_t AltPreviousError = 0;
-static int32_t YawIntError = 0;
-static int32_t YawPreviousError = 0;
+static double AltIntError = 0;
+static double AltPreviousError = 0;
+static double YawIntError = 0;
+static double YawPreviousError = 0;
 
 //Yaw error and control variables
-int32_t Yaw_error, YawDerivError;
-uint32_t YawControl;
+double Yaw_error, YawDerivError;
+double YawControl;
 
 //Altitude error and control variables
-int32_t Alt_error = 0, AltDerivError;
-int32_t AltControl;
+double Alt_error = 0, AltDerivError;
+double AltControl;
 
 //Main and tail duty cycle
-uint32_t mainDuty = 0, tailDuty = 0;
+double mainDuty = 0, tailDuty = 0;
 
 //Reading from PC4 to find reference
 uint32_t PC4Read = 0;
@@ -106,11 +97,11 @@ bool stable = false, paralysed = true, ref_Found = false;
 
 TimerHandle_t switchTimer;
 bool timerResetFlag = false;
-bool spiralSetUp = false;
+bool AltSetUp = false;
 bool spinSetUp = false;
 int32_t error;
 
-typedef enum {Normal, SpiralUp, SpiralDown, Spin180Left, Spin180Right}specialMode;
+typedef enum {Normal, SplatUp, SplatDown, Spin180Left, Spin180Right}specialMode;
 specialMode specialTrick = Normal;
 
 // *******************************************************
@@ -286,11 +277,11 @@ void specialButtonMode(void)
     {
         if (checkButton (UP) == PUSHED)
         {
-            specialTrick = SpiralUp;
+            specialTrick = SplatUp;
         }
         if (checkButton (DOWN) == PUSHED)
         {
-            specialTrick = SpiralDown;
+            specialTrick = SplatDown;
         }
         if (checkButton (LEFT) == PUSHED )
         {
@@ -305,67 +296,102 @@ void specialButtonMode(void)
 
 void spiralTrick(void)
 {
-    if(specialTrick == SpiralUp)
+    if(specialTrick == SplatUp)
     {
-        int32_t currentYaw = getYawTotal();
         int32_t currentAlt = getAlt();
 
-        if(spiralSetUp == false)
+        if(AltSetUp == false)
         {
-            setYawRef(0);
-            setAltRef(10);
-            if(currentAlt == 10)
-            {
-                spiralSetUp = true;
-            }
+            error = currentAlt + 50;
+            AltSetUp = true;
         }
 
-        if(spiralSetUp == true)
+        if(GetYawRef() != error)
         {
-            if (currentAlt == 90 && (currentYaw % TOTAL_ANGLE) == 0)
-            {
-                spiralSetUp = false;
-                specialTrick = Normal;
-            } else {
-                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
-                {
-                    setAltRef(GetAltRef() + 10);
-                    setYawRef(GetYawRef() + 45);
-                }
-            }
-
+            setAltRef(currentAlt + 25);
+        } else {
+            AltSetUp = false;
+            specialTrick = Normal;
         }
-    } else if(specialTrick == SpiralDown)
+    } else if(specialTrick == SplatDown)
     {
-        int32_t currentYaw = getYawTotal();
         int32_t currentAlt = getAlt();
 
-        if(spiralSetUp == false)
+        if(AltSetUp == false)
         {
-            setYawRef(0);
-            setAltRef(90);
-            if(currentAlt == 90)
-            {
-                spiralSetUp = true;
-            }
+            error = currentAlt - 50;
+            AltSetUp = true;
         }
 
-        if(spiralSetUp == true)
+        if(GetYawRef() != error)
         {
-            if (currentAlt == 10 && (currentYaw % TOTAL_ANGLE) == 0)
-            {
-                spiralSetUp = false;
-                specialTrick = Normal;
-            } else {
-                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
-                {
-                    setAltRef(GetAltRef() - 10);
-                    setYawRef(GetYawRef() - 45);
-                }
-            }
-
+            setAltRef(currentAlt - 25);
+        } else {
+            AltSetUp = false;
+            specialTrick = Normal;
         }
     }
+//    if(specialTrick == SpiralUp)
+//    {
+//        int32_t currentYaw = getYawTotal();
+//        int32_t currentAlt = getAlt();
+//
+//        if(spiralSetUp == false)
+//        {
+//            setYawRef(0);
+//            setAltRef(10);
+//            if(currentAlt == 10)
+//            {
+//                spiralSetUp = true;
+//            }
+//        }
+//
+//        if(spiralSetUp == true)
+//        {
+//            if (currentAlt == 90 && (currentYaw % TOTAL_ANGLE) == 0)
+//            {
+//                spiralSetUp = false;
+//                specialTrick = Normal;
+//            } else {
+//                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
+//                {
+//                    setAltRef(GetAltRef() + 10);
+//                    setYawRef(GetYawRef() + 45);
+//                }
+//            }
+//
+//        }
+//    } else if(specialTrick == SpiralDown)
+//    {
+//        int32_t currentYaw = getYawTotal();
+//        int32_t currentAlt = getAlt();
+//
+//        if(spiralSetUp == false)
+//        {
+//            setYawRef(0);
+//            setAltRef(90);
+//            if(currentAlt == 90)
+//            {
+//                spiralSetUp = true;
+//            }
+//        }
+//
+//        if(spiralSetUp == true)
+//        {
+//            if (currentAlt == 10 && (currentYaw % TOTAL_ANGLE) == 0)
+//            {
+//                spiralSetUp = false;
+//                specialTrick = Normal;
+//            } else {
+//                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
+//                {
+//                    setAltRef(GetAltRef() - 10);
+//                    setYawRef(GetYawRef() - 45);
+//                }
+//            }
+//
+//        }
+//    }
 }
 
 
@@ -490,9 +516,9 @@ void PIDControlYaw(void)
         YawIntError += Yaw_error * DELTA_T;  //Integral error
         YawDerivError  = Yaw_error-YawPreviousError;  //Derivative error
 
-        YawControl = Yaw_error * YAW_PROP_CONTROL      //yaw control based on PID terms
+        YawControl = clamp(Yaw_error * YAW_PROP_CONTROL, -30, 30)      //yaw control based on PID terms
                     + YawIntError * YAW_INT_CONTROL
-                    + YawDerivError * YAW_DIF_CONTROL
+                    + clamp(YawDerivError * YAW_DIF_CONTROL, -50, 50)
                     + TAIL_OFFSET;
 
 
@@ -516,9 +542,9 @@ void PIDControlAlt(void)
         AltIntError += Alt_error * DELTA_T;  //Integral error
         AltDerivError = (Alt_error-AltPreviousError) * 100;  //Derivative error
 
-        AltControl = Alt_error * ALT_PROP_CONTROL  //Altitude control based on the PID terms
+        AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
                     + AltIntError * ALT_INT_CONTROL
-                    + AltDerivError * ALT_DIF_CONTROL
+                    + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
                     + MAIN_OFFSET;
 
         AltControl = clamp(AltControl, 10, 90);
