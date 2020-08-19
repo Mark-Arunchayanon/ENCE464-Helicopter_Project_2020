@@ -50,9 +50,13 @@
 #define YAW_STEP_RATE       15   //Yaw step rate
 
 // Helirig 1
-#define ALT_PROP_CONTROL    0.7  //Altitude PID control
-#define ALT_INT_CONTROL     0.2
-#define ALT_DIF_CONTROL     0.6
+//#define ALT_PROP_CONTROL    0.7  //Altitude PID control
+//#define ALT_INT_CONTROL     0.2
+//#define ALT_DIF_CONTROL     0.6
+
+//#define ALT_PROP_CONTROL    0.45//Altitude PID control
+//#define ALT_INT_CONTROL     0.0
+//#define ALT_DIF_CONTROL     0.6
 
 // Helirig 3
 //#define ALT_PROP_CONTROL    1.0  //Altitude PID control
@@ -60,9 +64,9 @@
 //#define ALT_DIF_CONTROL     1.0
 
 //// Milestone
-//#define ALT_PROP_CONTROL    0.6  //Altitude PID control
-//#define ALT_INT_CONTROL     0.16
-//#define ALT_DIF_CONTROL     0.4 // 0.2 had a lot of overshoot
+#define ALT_PROP_CONTROL    0.5  //Altitude PID control
+#define ALT_INT_CONTROL     0.009 //0.16
+#define ALT_DIF_CONTROL     10 //0.5 // 0.2 had a lot of overshoot
 
 #define YAW_PROP_CONTROL    0.6  //Yaw PID control
 #define YAW_INT_CONTROL     0.05
@@ -71,12 +75,12 @@
 #define DELTA_T             0.01 // 1/SYS_TICK_RATE
 
 #define TAIL_OFFSET         35   //Tail offset
-#define MAIN_OFFSET         40   //Main offset
+#define MAIN_OFFSET         39   //Main offset
 
 #define MODE_CHANGE_TIME    500   //The time before flipping the switch will
                                  //land the heli instead of swapping mode.
 
-#define TOTAL_ANGLE         360
+#define TOTAL_ANGLE         360 // Total degrees
 
 //sets the intial value of the Altitude and
 extern int32_t AltRef =  ALT_REF_INIT;
@@ -108,7 +112,9 @@ TimerHandle_t switchTimer;
 bool timerResetFlag = false;
 bool spiralSetUp = false;
 bool spinSetUp = false;
-int32_t error;
+static int32_t error;
+
+SemaphoreHandle_t xSemSpiralSetUp, xSemSpinSetUp, xSemTimerResetFlag;
 
 typedef enum {Normal, SpiralUp, SpiralDown, Spin180Left, Spin180Right}specialMode;
 specialMode specialTrick = Normal;
@@ -308,7 +314,10 @@ void spiralTrick(void)
     if(specialTrick == SpiralUp)
     {
         int32_t currentYaw = getYawTotal();
+        int32_t currentYaw180 = getYaw();
         int32_t currentAlt = getAlt();
+        int32_t refAlt = GetAltRef();
+        int32_t refYaw = GetYawRef();
 
         if(spiralSetUp == false)
         {
@@ -322,12 +331,13 @@ void spiralTrick(void)
 
         if(spiralSetUp == true)
         {
-            if (currentAlt == 90 && (currentYaw % TOTAL_ANGLE) == 0)
+            if ((currentAlt > 80 && currentAlt < 96) && abs(currentYaw180) < 5)
             {
                 spiralSetUp = false;
                 specialTrick = Normal;
             } else {
-                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
+                if (((currentAlt < refAlt + 5) && (currentAlt < refAlt + 5)) &&
+                        ((currentYaw < refYaw + 5) && (currentYaw < refYaw + 5)))
                 {
                     setAltRef(GetAltRef() + 10);
                     setYawRef(GetYawRef() + 45);
@@ -338,7 +348,10 @@ void spiralTrick(void)
     } else if(specialTrick == SpiralDown)
     {
         int32_t currentYaw = getYawTotal();
+        int32_t currentYaw180 = getYaw();
         int32_t currentAlt = getAlt();
+        int32_t refAlt = GetAltRef();
+        int32_t refYaw = GetYawRef();
 
         if(spiralSetUp == false)
         {
@@ -352,12 +365,13 @@ void spiralTrick(void)
 
         if(spiralSetUp == true)
         {
-            if (currentAlt == 10 && (currentYaw % TOTAL_ANGLE) == 0)
+            if ((currentAlt > 0 && currentAlt < 16) && abs(currentYaw180) < 5)
             {
                 spiralSetUp = false;
                 specialTrick = Normal;
             } else {
-                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
+                if (((currentAlt < refAlt + 5) && (currentAlt < refAlt + 5)) &&
+                        ((currentYaw < refYaw + 5) && (currentYaw < refYaw + 5)))
                 {
                     setAltRef(GetAltRef() - 10);
                     setYawRef(GetYawRef() - 45);
@@ -382,9 +396,9 @@ void spinTrick(void)
             spinSetUp = true;
         }
 
-        if(GetYawRef() != error)
+        if((currentYaw < error - 5) && (currentYaw > error + 5))
         {
-            setYawRef(currentYaw - 15);
+            setYawRef(currentYaw - 10);
         } else {
             spinSetUp = false;
             specialTrick = Normal;
@@ -399,7 +413,7 @@ void spinTrick(void)
             spinSetUp = true;
         }
 
-        if(GetYawRef() != error)
+        if((currentYaw < error - 5) && (currentYaw > error + 5))
         {
             setYawRef(currentYaw + 15);
         } else {
@@ -496,7 +510,7 @@ void PIDControlYaw(void)
                     + TAIL_OFFSET;
 
 
-        YawControl = clamp(YawControl, 5, 90);
+        YawControl = clamp(YawControl, 10, 90);
         SetTailPWM(YawControl);  //Sets the tail duty cycle
         YawPreviousError = Yaw_error;
         tailDuty = YawControl;
@@ -669,7 +683,7 @@ void helicopterStates(void){
 
 void vControlTask (void *pvParameters)
 {
-    TickType_t xDelay10s = pdMS_TO_TICKS(10);
+    TickType_t xDelay10s = pdMS_TO_TICKS(30);
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
 
