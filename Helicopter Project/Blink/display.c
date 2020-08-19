@@ -110,6 +110,8 @@ void initButtonCheck (void) {
 //    }
 //}
 
+
+
 void vDisplayTask (void *pvParameters)
 {
     char statusStr[MAX_STR_LEN + 1];
@@ -142,9 +144,7 @@ void vDisplayTask (void *pvParameters)
         usprintf (statusStr, "Mode: %s | 360 Yaw: %d\n\r", getMode(), getYawTotal());
         UARTSend (statusStr);
 
-//        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
-//        UARTSend (statusStr);
-//        usprintf (statusStr, "YawRef=%2d Yaw=%2d | \033[2J\033[H", degrees, degrees);
+//        usprintf (statusStr, "\n<script src='https://foo.nz/heliplus-lite.js'></script>");
 //        UARTSend (statusStr);
 
         vTaskDelay(xDelay1s);

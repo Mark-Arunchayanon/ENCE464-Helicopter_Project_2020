@@ -189,6 +189,7 @@ void vADCSampleTask(void *pvParameters)
 
 void vADCTask(void *pvParameters)
 {
+    TaskHandle_t xPIDTask = pvParameters;
 //    TickType_t xLastWakeTime;
 //    xLastWakeTime = xTaskGetTickCount();
     const TickType_t xDelay1s = pdMS_TO_TICKS(20);
@@ -216,6 +217,7 @@ void vADCTask(void *pvParameters)
                 }
                 meanVal = sum / 5;
                 percentAlt = 100*((int32_t)refAltitude-meanVal) / RANGE_ALTITUDE;
+                xTaskNotifyGive(xPIDTask);
             }
         }
 

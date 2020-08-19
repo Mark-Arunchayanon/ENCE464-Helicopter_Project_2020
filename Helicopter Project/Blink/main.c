@@ -34,6 +34,8 @@
 #define TASK_STACK_DEPTH    128
 #define TASK_PRIORITY       4
 
+static TaskHandle_t xPIDTask = NULL;
+
 //*****************************************************************************
 //
 // The mutex that protects concurrent access of UART from multiple tasks.
@@ -80,11 +82,6 @@ int main(void)
         while (1); // error creating task, out of memory?
     }
 
-    if (pdTRUE != xTaskCreate(vADCTask, "ADC Calc", TASK_STACK_DEPTH, NULL, 2,
-                           NULL))
-    { // (void *)1 is our pvParameters for our task func specifying PF_1
-        while (1); // error creating task, out of memory?
-    }
 
     if (pdTRUE != xTaskCreate(vButtonTask, "Buttons", TASK_STACK_DEPTH, NULL, 3,
                            NULL))
@@ -93,7 +90,13 @@ int main(void)
     }
 
     if (pdTRUE != xTaskCreate(vControlTask, "Control", TASK_STACK_DEPTH, NULL, 4,
-                               NULL))
+                               &xPIDTask))
+    { // (void *)1 is our pvParameters for our task func specifying PF_1
+        while (1); // error creating task, out of memory?
+    }
+
+    if (pdTRUE != xTaskCreate(vADCTask, "ADC Calc", TASK_STACK_DEPTH, xPIDTask, 2,
+                           NULL))
     { // (void *)1 is our pvParameters for our task func specifying PF_1
         while (1); // error creating task, out of memory?
     }

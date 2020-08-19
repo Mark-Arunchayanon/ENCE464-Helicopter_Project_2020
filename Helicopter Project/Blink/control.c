@@ -50,32 +50,23 @@
 #define YAW_STEP_RATE       15   //Yaw step rate
 
 // Helirig 1
-//#define ALT_PROP_CONTROL    0.7  //Altitude PID control
-//#define ALT_INT_CONTROL     0.2
-//#define ALT_DIF_CONTROL     0.6
-
-//#define ALT_PROP_CONTROL    0.45//Altitude PID control
-//#define ALT_INT_CONTROL     0.0
-//#define ALT_DIF_CONTROL     0.6
-
-// Helirig 3
-//#define ALT_PROP_CONTROL    1.0  //Altitude PID control
-//#define ALT_INT_CONTROL     1.0
-//#define ALT_DIF_CONTROL     1.0
+#define ALT_PROP_CONTROL    0.5  //Altitude PID control
+#define ALT_INT_CONTROL     0.03
+#define ALT_DIF_CONTROL     0.2//1.5
 
 //// Milestone
-#define ALT_PROP_CONTROL    0.5  //Altitude PID control
-#define ALT_INT_CONTROL     0.009 //0.16
-#define ALT_DIF_CONTROL     10 //0.5 // 0.2 had a lot of overshoot
+//#define ALT_PROP_CONTROL    0.4  //Altitude PID control
+//#define ALT_INT_CONTROL     0.0 //0.16
+//#define ALT_DIF_CONTROL     2 //0.5 // 0.2 had a lot of overshoot
 
-#define YAW_PROP_CONTROL    0.6  //Yaw PID control
-#define YAW_INT_CONTROL     0.05
+#define YAW_PROP_CONTROL    0.3  //Yaw PID control
+#define YAW_INT_CONTROL     0.03
 #define YAW_DIF_CONTROL     1.5
 
 #define DELTA_T             0.01 // 1/SYS_TICK_RATE
 
 #define TAIL_OFFSET         35   //Tail offset
-#define MAIN_OFFSET         39   //Main offset
+#define MAIN_OFFSET         45   //Main offset
 
 #define MODE_CHANGE_TIME    500   //The time before flipping the switch will
                                  //land the heli instead of swapping mode.
@@ -87,21 +78,21 @@ extern int32_t AltRef =  ALT_REF_INIT;
 extern int32_t YawRef = YAW_REF_INIT;
 
 //Sets integral error variables
-static int32_t AltIntError = 0;
-static int32_t AltPreviousError = 0;
-static int32_t YawIntError = 0;
-static int32_t YawPreviousError = 0;
+static double AltIntError = 0;
+static double AltPreviousError = 0;
+static double YawIntError = 0;
+static double YawPreviousError = 0;
 
 //Yaw error and control variables
-int32_t Yaw_error, YawDerivError;
-uint32_t YawControl;
+double Yaw_error, YawDerivError;
+double YawControl;
 
 //Altitude error and control variables
-int32_t Alt_error = 0, AltDerivError;
-int32_t AltControl;
+double Alt_error = 0, AltDerivError;
+double AltControl;
 
 //Main and tail duty cycle
-uint32_t mainDuty = 0, tailDuty = 0;
+double mainDuty = 0, tailDuty = 0;
 
 //Reading from PC4 to find reference
 uint32_t PC4Read = 0;
@@ -114,7 +105,6 @@ bool spiralSetUp = false;
 bool spinSetUp = false;
 static int32_t error;
 
-SemaphoreHandle_t xSemSpiralSetUp, xSemSpinSetUp, xSemTimerResetFlag;
 
 typedef enum {Normal, SpiralUp, SpiralDown, Spin180Left, Spin180Right}specialMode;
 specialMode specialTrick = Normal;
@@ -331,7 +321,7 @@ void spiralTrick(void)
 
         if(spiralSetUp == true)
         {
-            if ((currentAlt > 80 && currentAlt < 96) && abs(currentYaw180) < 5)
+            if ((currentAlt > 80 && currentAlt < 96) && abs(currentYaw180) < 8)
             {
                 spiralSetUp = false;
                 specialTrick = Normal;
@@ -365,7 +355,7 @@ void spiralTrick(void)
 
         if(spiralSetUp == true)
         {
-            if ((currentAlt > 0 && currentAlt < 16) && abs(currentYaw180) < 5)
+            if ((currentAlt > 0 && currentAlt < 16) && abs(currentYaw180) < 8)
             {
                 spiralSetUp = false;
                 specialTrick = Normal;
@@ -392,34 +382,42 @@ void spinTrick(void)
 
         if(spinSetUp == false)
         {
-            error = currentYaw - 180;
+            error = currentYaw + 180;
+            setYawRef(error);
             spinSetUp = true;
-        }
-
-        if((currentYaw < error - 5) && (currentYaw > error + 5))
-        {
-            setYawRef(currentYaw - 10);
         } else {
             spinSetUp = false;
             specialTrick = Normal;
         }
+
+//        if((currentYaw < error - 5) && (currentYaw > error + 5))
+//        {
+//            setYawRef(currentYaw + 10);
+//        } else {
+//            spinSetUp = false;
+//            specialTrick = Normal;
+//        }
     } else if(specialTrick == Spin180Right)
     {
         int32_t currentYaw = getYawTotal();
 
         if(spinSetUp == false)
         {
-            error = currentYaw + 180;
+            error = currentYaw - 180;
+            setYawRef(error);
             spinSetUp = true;
-        }
-
-        if((currentYaw < error - 5) && (currentYaw > error + 5))
-        {
-            setYawRef(currentYaw + 15);
         } else {
             spinSetUp = false;
             specialTrick = Normal;
         }
+
+//        if((currentYaw < error - 5) && (currentYaw > error + 5))
+//        {
+//            setYawRef(currentYaw - 15);
+//        } else {
+//            spinSetUp = false;
+//            specialTrick = Normal;
+//        }
     }
 }
 // *******************************************************
@@ -501,12 +499,15 @@ void PIDControlYaw(void)
 
         Yaw_error = YawRef - currentYaw;  // Calculates the yaw error
 
-        YawIntError += Yaw_error * DELTA_T;  //Integral error
+        if(getTailPWM() <85 && getTailPWM() > 5)
+        {
+            YawIntError += Yaw_error * DELTA_T;  //Integral error
+        }
         YawDerivError  = Yaw_error-YawPreviousError;  //Derivative error
 
-        YawControl = Yaw_error * YAW_PROP_CONTROL      //yaw control based on PID terms
+        YawControl = clamp(Yaw_error * YAW_PROP_CONTROL, -30, 30)      //yaw control based on PID terms
                     + YawIntError * YAW_INT_CONTROL
-                    + YawDerivError * YAW_DIF_CONTROL
+                    + clamp(YawDerivError * YAW_DIF_CONTROL, -30, 30)
                     + TAIL_OFFSET;
 
 
@@ -527,12 +528,16 @@ void PIDControlAlt(void)
 
         Alt_error = AltRef - getAlt();  //Calculates altitude error
 
-        AltIntError += Alt_error * DELTA_T;  //Integral error
+        if(getMainPWM() <85 && getMainPWM() > 5)
+        {
+            AltIntError += Alt_error * DELTA_T;  //Integral error
+        }
+
         AltDerivError = (Alt_error-AltPreviousError) * 100;  //Derivative error
 
-        AltControl = Alt_error * ALT_PROP_CONTROL  //Altitude control based on the PID terms
+        AltControl = Alt_error * ALT_PROP_CONTROL//clamp(Alt_error * ALT_PROP_CONTROL, -50, 50)  //Altitude control based on the PID terms
                     + AltIntError * ALT_INT_CONTROL
-                    + AltDerivError * ALT_DIF_CONTROL
+                    + AltDerivError * ALT_DIF_CONTROL//clamp(AltDerivError * ALT_DIF_CONTROL, -30, 30)
                     + MAIN_OFFSET;
 
         AltControl = clamp(AltControl, 10, 90);
@@ -636,7 +641,7 @@ void helicopterStates(void){
 
             //Sets initial power percentages
             SetMainPWM(15);
-            SetTailPWM(25);
+            SetTailPWM(20);
         }
         break;
 
@@ -683,13 +688,14 @@ void helicopterStates(void){
 
 void vControlTask (void *pvParameters)
 {
-    TickType_t xDelay10s = pdMS_TO_TICKS(30);
-    TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+//    TickType_t xDelay10s = pdMS_TO_TICKS(30);
+//    TickType_t xLastWakeTime;
+//    xLastWakeTime = xTaskGetTickCount();
 
     for ( ;; )
     {
-        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
+//        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         GetSwitchState();
         PIDControlAlt();
