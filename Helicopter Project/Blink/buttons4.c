@@ -1,17 +1,23 @@
-// *******************************************************
-// 
-// buttons4:        Support for a set of FOUR specific buttons on the Tiva/Orbit.
-//                  ENCE361 sample code.
-//                  The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
-//                  LEFT and RIGHT on the Tiva.
-//
-//Note:             pin PF0 (the pin for the RIGHT pushbutton - SW2 on
-//                  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
-//
-// P.J. Bones UCECE
-// Last modified:  7.2.2018
-// 
-// *******************************************************
+/*************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * buttons4:        Support for a set of FOUR specific buttons on the Tiva/Orbit.
+ *                  ENCE361 sample code.
+ *                  The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
+ *                  LEFT and RIGHT on the Tiva.
+ *
+ * Note:             pin PF0 (the pin for the RIGHT pushbutton - SW2 on
+ *                   the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
+ *
+ * Original Author:        P.J. Bones UCECE
+ * Updated to FreeRTOS by: G. Thiele
+ *                         M. Arunchayanon
+ *                         S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ *************************************************************************************
+ */
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -143,18 +149,17 @@ checkButton (uint8_t butName)
 	return NO_CHANGE;
 }
 
-
+// *******************************************************
+// vButtonTask:     Function returns the new button logical state if the button
+//                  logical state (PUSHED or RELEASED) has changed since the last call,
+//                  otherwise returns NO_CHANGE.
 void vButtonTask (void *pvParameters)
 {
     const TickType_t xDelay1s = pdMS_TO_TICKS(10);
-//    char statusStr[MAX_STR_LEN + 1];
 
     for ( ;; )
     {
         updateButtons();
-
-//        usprintf (statusStr, "\r\nButton working");
-//        UARTSend (statusStr);
 
         vTaskDelay(xDelay1s);
     }
