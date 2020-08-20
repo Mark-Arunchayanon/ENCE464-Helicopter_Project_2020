@@ -69,29 +69,22 @@
 
 #define TOTAL_ANGLE         360
 
-//sets the intial value of the Altitude and
-extern int32_t AltRef =  ALT_REF_INIT;
-extern int32_t YawRef = YAW_REF_INIT;
 
-//Sets integral error variables
-static double AltIntError = 0;
-static double AltPreviousError = 0;
-static double YawIntError = 0;
-static double YawPreviousError = 0;
+typedef struct Data {
+    int32_t Val;
+    int32_t Ref;
+    int32_t Err;
+    int32_t PrvErr;
+    int32_t Control;
+    int32_t Duty;
+    double Perr;
+    double Ierr;
+    double Derr;
+} DataType;
 
-//Yaw error and control variables
-double Yaw_error, YawDerivError;
-double YawControl;
+DataType Alt, Yaw;
 
-//Altitude error and control variables
-double Alt_error = 0, AltDerivError;
-double AltControl;
 
-int32_t currentYaw = 0;
-int32_t currentAlt = 0;
-
-//Main and tail duty cycle
-double mainDuty = 0, tailDuty = 0;
 
 //Reading from PC4 to find reference
 uint32_t PC4Read = 0;
@@ -221,7 +214,7 @@ int32_t clamp(int32_t x, int32_t min, int32_t max)
 // TAKES:               New altitude reference as a percentage
 void setAltRef(int32_t newAltRef)
 {
-    AltRef = clamp(newAltRef, 0, 100);
+    Alt.Ref = clamp(newAltRef, 0, 100);
 }
 
 
@@ -236,13 +229,13 @@ void setYawRef(int32_t newYawRef)
         int32_t yaw = getYawTotal() % TOTAL_ANGLE;
         if(yaw > 180)
         {
-            YawRef = reference + (360 - yaw);
+            Yaw.Ref = reference + (360 - yaw);
         }else {
-            YawRef = reference - yaw;
+            Yaw.Ref = reference - yaw;
         }
     }
 
-    YawRef = newYawRef;
+    Yaw.Ref = newYawRef;
 }
 
 
@@ -251,7 +244,7 @@ void setYawRef(int32_t newYawRef)
 // RETURNS:             Altitude Reference as a int32_t
 int32_t GetAltRef(void)
 {
-    return AltRef;
+    return Alt.Ref;
 }
 
 
@@ -260,7 +253,7 @@ int32_t GetAltRef(void)
 // RETURNS:             Yaw Reference as a int32_t
 int32_t GetYawRef(void)
 {
-    return YawRef;
+    return Yaw.Ref;
 }
 
 
@@ -286,8 +279,8 @@ void take_Off(void)
 
 void specialButtonMode(void)
 {
-    int32_t currentYaw = getYawTotal();
-    int32_t currentAlt = getAlt();
+    Yaw.Val = getYawTotal();
+    Alt.Val = getAlt();
     if(mode == Special)
     {
         if (checkButton (UP) == PUSHED)
@@ -313,11 +306,11 @@ void spiralTrick(void)
 {
     if(specialTrick == SplatUp)
     {
-        int32_t currentAlt = getAlt();
+        Alt.Val = getAlt();
 
         if(AltSetUp == false)
         {
-            error = currentAlt + 50;
+            error = Alt.Val + 50;
             setAltRef(error);
             AltSetUp = true;
         } else {
@@ -326,11 +319,11 @@ void spiralTrick(void)
         }
     } else if(specialTrick == SplatDown)
     {
-        int32_t currentAlt = getAlt();
+        Alt.Val = getAlt();
 
         if(AltSetUp == false)
         {
-            error = currentAlt - 50;
+            error = Alt.Val - 50;
             setAltRef(error);
             AltSetUp = true;
         } else {
@@ -346,11 +339,11 @@ void spinTrick(void)
 {
     if(specialTrick == Spin180Left)
     {
-        int32_t currentYaw = getYawTotal();
+        Yaw.Val = getYawTotal();
 
         if(spinSetUp == false)
         {
-            error = currentYaw - 180;
+            error = Yaw.Val - 180;
             spinSetUp = true;
             setYawRef(error);
         } else {
@@ -360,18 +353,18 @@ void spinTrick(void)
 
 //        if(GetYawRef() != error)
 //        {
-//            setYawRef(currentYaw - 15);
+//            setYawRef(Yaw.Val - 15);
 //        } else {
 //            spinSetUp = false;
 //            specialTrick = Normal;
 //        }
     } else if(specialTrick == Spin180Right)
     {
-        int32_t currentYaw = getYawTotal();
+        Yaw.Val = getYawTotal();
 
         if(spinSetUp == false)
         {
-            error = currentYaw + 180;
+            error = Yaw.Val + 180;
             setYawRef(error);
             spinSetUp = true;
         } else {
@@ -381,7 +374,7 @@ void spinTrick(void)
 
 //        if(GetYawRef() != error)
 //        {
-//            setYawRef(currentYaw + 15);
+//            setYawRef(Yaw.Val + 15);
 //        } else {
 //            spinSetUp = false;
 //            specialTrick = Normal;
@@ -394,17 +387,17 @@ void spinTrick(void)
 //                      Once the reference is found, resets yaw reference to 0 and current yaw to 0
 void findYawRef(void)
 {
-    int32_t currentYaw;
+
     if(xDisplayMutex != NULL)
     {
         xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-        currentYaw = getYaw();
+        Yaw.Val = getYaw();
         xSemaphoreGive(xDisplayMutex);
     }
 
     if(ref_Found == false)
     {
-        setYawRef(currentYaw + YAW_STEP_RATE);
+        setYawRef(Yaw.Val + YAW_STEP_RATE);
     }
 }
 
@@ -427,7 +420,7 @@ void YawRefIntHandler(void)
 void landing(void)
 {
 
-    if (YawRef != 0)
+    if (Yaw.Ref != 0)
     {
         setYawRef(0);
     }
@@ -435,19 +428,18 @@ void landing(void)
     if(xDisplayMutex != NULL)
     {
         xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-        int32_t currentYaw = getYaw();
-        int32_t currentAlt = getAlt();
+        Yaw.Val = getYaw();
+        Alt.Val = getAlt();
         xSemaphoreGive(xDisplayMutex);
     }
 
-//    int32_t currentYaw = getYaw();
-//    int32_t currentAlt = getAlt();
 
-    if (abs(currentYaw) < 10)
+
+    if (abs(Yaw.Val) < 10)
     {
-        if (currentAlt > 10)
+        if (Alt.Val > 10)
         {
-            setAltRef(currentAlt - 15);
+            setAltRef(Alt.Val - 15);
         }
         else
         {
@@ -469,36 +461,36 @@ void PIDControlYaw(void)
 {
     if((mode == Initialising) || (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing))
     {
-        int32_t currentYaw = 0;
+        Yaw.Val = 0;
         if (mode == Landing)
         {
             if(xDisplayMutex != NULL)
             {
                 xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-                currentYaw = getYaw();
+                Yaw.Val = getYaw();
                 xSemaphoreGive(xDisplayMutex);
             }
-//            currentYaw = getYaw();
+//            Yaw.Val = getYaw();
 
         } else {
-            currentYaw = getYawTotal();
+            Yaw.Val = getYawTotal();
         }
 
-        Yaw_error = YawRef - currentYaw;  // Calculates the yaw error
+        Yaw.Err = Yaw.Ref - Yaw.Val;  // Calculates the yaw error
 
-        YawIntError += Yaw_error * DELTA_T;  //Integral error
-        YawDerivError  = Yaw_error-YawPreviousError;  //Derivative error
+        Yaw.Ierr += Yaw.Err * DELTA_T;  //Integral error
+        Yaw.Derr  = Yaw.Err-Yaw.PrvErr;  //Derivative error
 
-        YawControl = clamp(Yaw_error * YAW_PROP_CONTROL, -30, 30)      //yaw control based on PID terms
-                    + YawIntError * YAW_INT_CONTROL
-                    + clamp(YawDerivError * YAW_DIF_CONTROL, -50, 50)
+        Yaw.Control = clamp(Yaw.Err * YAW_PROP_CONTROL, -30, 30)      //yaw control based on PID terms
+                    + Yaw.Ierr * YAW_INT_CONTROL
+                    + clamp(Yaw.Derr * YAW_DIF_CONTROL, -50, 50)
                     + TAIL_OFFSET;
 
 
-        YawControl = clamp(YawControl, 5, 90);
-        SetTailPWM(YawControl);  //Sets the tail duty cycle
-        YawPreviousError = Yaw_error;
-        tailDuty = YawControl;
+        Yaw.Control = clamp(Yaw.Control, 5, 90);
+        SetTailPWM(Yaw.Control);  //Sets the tail duty cycle
+        Yaw.PrvErr = Yaw.Err;
+        Yaw.Duty = Yaw.Control;
     }
 }
 
@@ -510,17 +502,17 @@ void PIDControlAlt(void)
 {
     if ((mode == Initialising) || (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing)) {
 
-        Alt_error = AltRef - getAlt();  //Calculates altitude error
+        Alt.Err = Alt.Ref - getAlt();  //Calculates altitude error
 
-        AltIntError += Alt_error * DELTA_T;  //Integral error
-        AltDerivError = (Alt_error-AltPreviousError) * 100;  //Derivative error
+        Alt.Ierr += Alt.Err * DELTA_T;  //Integral error
+        Alt.Derr = (Alt.Err - Alt.PrvErr) * 100;  //Derivative error
 
 //        if(xPIDMutex != NULL)
 //            {
 //                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
 //                AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
-//                                    + AltIntError * ALT_INT_CONTROL
-//                                    + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
+//                                    + Alt.Ierr * ALT_INT_CONTROL
+//                                    + clamp(Alt.Derr * ALT_DIF_CONTROL, -40, 60)
 //                                    + MAIN_OFFSET;
 //
 //                AltControl = clamp(AltControl, 10, 90);
@@ -530,20 +522,20 @@ void PIDControlAlt(void)
 //        if(xPIDMutex != NULL)
 //            {
 //                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
-//                SetMainPWM(AltControl);  //Sets the main duty cycle
+//                SetMainPWM(Alt.Control);  //Sets the main duty cycle
 //                xSemaphoreGive(xPIDMutex);
 //            }
 
-        AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
-                            + AltIntError * ALT_INT_CONTROL
-                            + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
+        Alt.Control = clamp(Alt.Err * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
+                            + Alt.Ierr * ALT_INT_CONTROL
+                            + clamp(Alt.Derr * ALT_DIF_CONTROL, -40, 60)
                             + MAIN_OFFSET;
 
-        SetMainPWM(AltControl);  //Sets the main duty cycle
+        SetMainPWM(Alt.Control);  //Sets the main duty cycle
 
-        AltControl = clamp(AltControl, 10, 90);
-        AltPreviousError = Alt_error;
-        mainDuty = AltControl;
+        Alt.Control = clamp(Alt.Control, 10, 90);
+        Alt.PrvErr = Alt.Err;
+        Alt.Duty = Alt.Control;
     }
 }
 
@@ -553,7 +545,7 @@ void PIDControlAlt(void)
 // RETURNS:             The main duty cycle as a uint32_t
 uint32_t getMainDuty(void)
 {
-    return mainDuty;
+    return Alt.Duty;
 }
 
 
@@ -562,7 +554,7 @@ uint32_t getMainDuty(void)
 // RETURNS:             The tail rotor duty cycle as a uint32_t
 uint32_t getTailDuty(void)
 {
-    return tailDuty;
+    return Yaw.Duty;
 }
 
 
@@ -589,12 +581,12 @@ char* getMode(void)
 // resetIntControl:     Reset all error and integral error to 0
 void resetIntControl(void)
 {
-    Alt_error = 0;
-    AltIntError = 0;
-    AltPreviousError = 0;
-    Yaw_error = 0;
-    YawIntError = 0;
-    YawPreviousError = 0;
+    Alt.Err = 0;
+    Alt.Ierr = 0;
+    Alt.PrvErr = 0;
+    Yaw.Err = 0;
+    Yaw.Ierr = 0;
+    Yaw.PrvErr = 0;
 }
 
 
@@ -606,21 +598,21 @@ void resetIntControl(void)
 void RefUpdate(void)
 {
     if(mode == Flying) {
-        if ((checkButton (UP) == PUSHED) && (AltRef < ALT_MAX))
+        if ((checkButton (UP) == PUSHED) && (Alt.Ref < ALT_MAX))
         {
             setAltRef(GetAltRef() + ALT_STEP_RATE);
         }
-        if ((checkButton (DOWN) == PUSHED) && (AltRef > ALT_MIN))
+        if ((checkButton (DOWN) == PUSHED) && (Alt.Ref > ALT_MIN))
         {
             setAltRef(GetAltRef() - ALT_STEP_RATE);
         }
         if (checkButton (LEFT) == PUSHED )
         {
-            YawRef -= YAW_STEP_RATE;
+            Yaw.Ref -= YAW_STEP_RATE;
         }
         if (checkButton (RIGHT) == PUSHED)
         {
-            YawRef += YAW_STEP_RATE;
+            Yaw.Ref += YAW_STEP_RATE;
         }
 
     }
@@ -694,6 +686,9 @@ void vControlTask (void *pvParameters)
     for ( ;; )
     {
 //        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
+
+        Alt.Ref = ALT_REF_INIT;
+        Yaw.Ref = YAW_REF_INIT;
 
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 

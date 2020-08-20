@@ -161,14 +161,14 @@ void vDisplayTask (void *pvParameters)
         usprintf (statusStr, "Mode: %s | 360 Yaw: %d\n\r", getMode(), getYawTotal());
         UARTSend (statusStr);
 
-        if(i % 5 == 0)
-        {
-            static char runtime_stats_buffer[512];
-            vTaskGetRunTimeStats(runtime_stats_buffer);
-            UARTSend(runtime_stats_buffer);
-        } else {
-            i++;
-        }
+//        if(i % 5 == 0)
+//        {
+//            static char runtime_stats_buffer[512];
+//            vTaskGetRunTimeStats(runtime_stats_buffer);
+//            UARTSend(runtime_stats_buffer);
+//        } else {
+//            i++;
+//        }
 
 
 //        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
