@@ -41,6 +41,8 @@
 //*****************************************************************************
 //xSemaphoreHandle g_pUARTSemaphore;
 
+
+
 //void BlinkLED(void *);
 
 int main(void)
@@ -103,6 +105,8 @@ int main(void)
     { // (void *)1 is our pvParameters for our task func specifying PF_1
         while (1); // error creating task, out of memory?
     }
+
+
     vTaskStartScheduler();      // Start FreeRTOS!!
 
     while(1);                   // Should never get here since the RTOS should never "exit".

@@ -49,12 +49,12 @@
 #define YAW_REF_INIT        0    //Initial yaw reference
 #define YAW_STEP_RATE       15   //Yaw step rate
 
-// 0.3, 0.08, 1.0 @40 best gains found out____________________________________________ better 0.5 0.05 1.5 @20
+// 0.3, 0.08, 1.0 @40 best gains found out____________________________________________ better 0.5 0.05 1.5 @20     0.5 0.05 1.5
 #define ALT_PROP_CONTROL    0.5 //Altitude PID control was 0.4
 #define ALT_INT_CONTROL     0.05
 #define ALT_DIF_CONTROL     1.5
 
-//Yaw PID control YAAWWWWWWWWWWWWW_______________________________________________ 0.8 0.04 1.6 @20
+//Yaw PID control YAAWWWWWWWWWWWWW_______________________________________________ 0.8 0.04 1.6 @20     0.4 0.04 1.0
 #define YAW_PROP_CONTROL    0.4
 #define YAW_INT_CONTROL     0.04
 #define YAW_DIF_CONTROL     1.0
@@ -87,6 +87,9 @@ double YawControl;
 double Alt_error = 0, AltDerivError;
 double AltControl;
 
+int32_t currentYaw = 0;
+int32_t currentAlt = 0;
+
 //Main and tail duty cycle
 double mainDuty = 0, tailDuty = 0;
 
@@ -100,6 +103,8 @@ bool timerResetFlag = false;
 bool AltSetUp = false;
 bool spinSetUp = false;
 int32_t error;
+
+SemaphoreHandle_t xYawMutex, xPIDMutex;
 
 typedef enum {Normal, SplatUp, SplatDown, Spin180Left, Spin180Right}specialMode;
 specialMode specialTrick = Normal;
@@ -147,6 +152,8 @@ void initSwitch_PC4(void)
     {
         while(1);
     }
+
+    xPIDMutex = xSemaphoreCreateBinary();
 
 }
 
@@ -262,7 +269,13 @@ int32_t GetYawRef(void)
 //                      If this is true, sets Altitude Reference to 50%
 void take_Off(void)
 {
-    int32_t yaw = getYaw();
+    if(xDisplayMutex != NULL)
+    {
+        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+        int32_t yaw = getYaw();
+        xSemaphoreGive(xDisplayMutex);
+
+    }
     if (abs(yaw) < 10) {
         setAltRef(50);
     }
@@ -306,7 +319,7 @@ void spiralTrick(void)
             AltSetUp = true;
         }
 
-        if(GetYawRef() != error)
+        if(GetYawRef() >= error)
         {
             setAltRef(currentAlt + 25);
         } else {
@@ -323,7 +336,7 @@ void spiralTrick(void)
             AltSetUp = true;
         }
 
-        if(GetYawRef() != error)
+        if(GetYawRef() <= error)
         {
             setAltRef(currentAlt - 25);
         } else {
@@ -475,8 +488,14 @@ void landing(void)
         setYawRef(0);
     }
 
-    int32_t currentYaw = getYaw();
-    int32_t currentAlt = getAlt();
+    if(xDisplayMutex != NULL)
+    {
+        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+        int32_t currentYaw = getYaw();
+        int32_t currentAlt = getAlt();
+        xSemaphoreGive(xDisplayMutex);
+    }
+
     if (abs(currentYaw) < 10)
     {
         if (currentAlt > 10)
@@ -506,7 +525,13 @@ void PIDControlYaw(void)
         int32_t currentYaw = 0;
         if (mode == Landing)
         {
-            currentYaw = getYaw();
+            if(xDisplayMutex != NULL)
+            {
+                xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+                currentYaw = getYaw();
+                xSemaphoreGive(xDisplayMutex);
+            }
+
         } else {
             currentYaw = getYawTotal();
         }
@@ -542,14 +567,25 @@ void PIDControlAlt(void)
         AltIntError += Alt_error * DELTA_T;  //Integral error
         AltDerivError = (Alt_error-AltPreviousError) * 100;  //Derivative error
 
-        AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
-                    + AltIntError * ALT_INT_CONTROL
-                    + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
-                    + MAIN_OFFSET;
+        if(xPIDMutex != NULL)
+            {
+                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
+                AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
+                                    + AltIntError * ALT_INT_CONTROL
+                                    + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
+                                    + MAIN_OFFSET;
 
-        AltControl = clamp(AltControl, 10, 90);
+                AltControl = clamp(AltControl, 10, 90);
+                xSemaphoreGive(xPIDMutex);
+            }
 
-        SetMainPWM(AltControl);  //Sets the main duty cycle
+        if(xPIDMutex != NULL)
+            {
+                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
+                SetMainPWM(AltControl);  //Sets the main duty cycle
+                xSemaphoreGive(xPIDMutex);
+            }
+
         AltPreviousError = Alt_error;
         mainDuty = AltControl;
     }
@@ -648,7 +684,7 @@ void helicopterStates(void){
 
             //Sets initial power percentages
             SetMainPWM(15);
-            SetTailPWM(25);
+            SetTailPWM(20);
         }
         break;
 

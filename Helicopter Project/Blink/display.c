@@ -38,12 +38,15 @@
 #include "task.h"
 #include "semphr.h"
 
+SemaphoreHandle_t xDisplayMutex;
+
 //  *****************************************************************************
 //  initDisplay:        Initialises Display using OrbitLED functions
 void initDisplay (void)
 {
     // Initialise the Orbit OLED display
     OLEDInitialise ();
+    xDisplayMutex = xSemaphoreCreateMutex();
 }
 
 
@@ -116,16 +119,27 @@ void vDisplayTask (void *pvParameters)
     const TickType_t xDelay1s = pdMS_TO_TICKS(100);
     int32_t yawReading = 0;
     int32_t altReading = 0;
+    int32_t PWMmain = 0;
+    int32_t PWMtail = 0;
 
     for ( ;; )
     {
-        yawReading = getYaw();
-        altReading = getAlt();
+        if(xDisplayMutex != NULL)
+        {
+            xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+            yawReading = getYaw();
+            altReading = getAlt();
+            PWMmain = getMainPWM();
+            PWMtail = getTailPWM();
+            xSemaphoreGive(xDisplayMutex);
+        }
+
 
         printString("Altitude = %4d%%", altReading, 0);
         printString("Yaw      = %4d", yawReading, 1);
-        printString("Main PWM = %4d%%", getMainPWM(), 2);
-        printString("Tail PWM = %4d%%", getTailPWM(), 3);
+        printString("Main PWM = %4d%%", PWMmain, 2);
+        printString("Tail PWM = %4d%%", PWMtail, 3);
+
 
 //        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r"
 //                "AltRef = %2d | YawRef = %2d |", percentAlt, degrees, AltRef, YawRef);

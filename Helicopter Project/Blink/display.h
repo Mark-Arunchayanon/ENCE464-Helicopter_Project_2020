@@ -16,7 +16,11 @@
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "OrbitOLED/lib_OrbitOled/OrbitOled.h"
 #include "altitude.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
 
+
+extern SemaphoreHandle_t xDisplayMutex;
 
 //  *****************************************************************************
 //  initDisplay:        Initialises Display using OrbitLED functions

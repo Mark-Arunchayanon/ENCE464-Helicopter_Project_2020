@@ -29,6 +29,8 @@
 
 #define configSUPPORT_DYNAMIC_ALLOCATION 1
 
+#define configUSE_MUTEXES 1
+
 #define INCLUDE_vTaskPrioritySet 0
 
 #define INCLUDE_uxTaskPriorityGet 0
