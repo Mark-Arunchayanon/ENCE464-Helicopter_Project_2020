@@ -1,16 +1,16 @@
-# ENCE361: Helicopter Rig Controller Project
+# FreeRTOS Helicopter Rig Controller Project
 
-### By Alvin Li, Matthew Robertson, and Sasiru Goonatilake
-### Help from Phil Bones, Ciaran Moore, Le Yang, and ENCE361 tutors
+### ENCE464: Assignment 1
+### By George Thiele, Mark Arunchayanon and Sasiru Goonatilake
 
-This program controls a remote controlled model helicopter via the UC Remote Labs
-The tasks the program performs include:
+FreeRTOS implementation of ENCE361's HeliRig project
 
 - Find a direction in which to take-off from
 - Rise to an altitude where stable, manoeuvrable flight can be maintained
-- Rotate around a fixed position and over several incremental steps
+- Free control
+- Special modes (180 degree spins, altitude adjustments)
 - Land back at base, "parking" in a home position
 
 ### Compile
 
-Compile using CCS with Tivaware. OrbitOLED module required
+Compile using CCS with Tivaware. FreeRTOS required.
