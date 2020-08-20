@@ -270,21 +270,21 @@ int32_t GetYawRef(void)
 void take_Off(void)
 {
     int32_t yaw;
-//    if(xDisplayMutex != NULL)
-//    {
-//        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-//        yaw = getYaw();
-//        if (abs(yaw) < 10) {
-//            setAltRef(50);
-//        }
-//        xSemaphoreGive(xDisplayMutex);
-//
-//    }
+    if(xDisplayMutex != NULL)
+    {
+        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+        yaw = getYaw();
+        if (abs(yaw) < 10) {
+            setAltRef(50);
+        }
+        xSemaphoreGive(xDisplayMutex);
 
-    yaw = getYaw();
-    if (abs(yaw) < 10) {
-        setAltRef(50);
     }
+
+//    yaw = getYaw();
+//    if (abs(yaw) < 10) {
+//        setAltRef(50);
+//    }
 }
 
 
@@ -342,67 +342,6 @@ void spiralTrick(void)
             specialTrick = Normal;
         }
     }
-//    if(specialTrick == SpiralUp)
-//    {
-//        int32_t currentYaw = getYawTotal();
-//        int32_t currentAlt = getAlt();
-//
-//        if(spiralSetUp == false)
-//        {
-//            setYawRef(0);
-//            setAltRef(10);
-//            if(currentAlt == 10)
-//            {
-//                spiralSetUp = true;
-//            }
-//        }
-//
-//        if(spiralSetUp == true)
-//        {
-//            if (currentAlt == 90 && (currentYaw % TOTAL_ANGLE) == 0)
-//            {
-//                spiralSetUp = false;
-//                specialTrick = Normal;
-//            } else {
-//                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
-//                {
-//                    setAltRef(GetAltRef() + 10);
-//                    setYawRef(GetYawRef() + 45);
-//                }
-//            }
-//
-//        }
-//    } else if(specialTrick == SpiralDown)
-//    {
-//        int32_t currentYaw = getYawTotal();
-//        int32_t currentAlt = getAlt();
-//
-//        if(spiralSetUp == false)
-//        {
-//            setYawRef(0);
-//            setAltRef(90);
-//            if(currentAlt == 90)
-//            {
-//                spiralSetUp = true;
-//            }
-//        }
-//
-//        if(spiralSetUp == true)
-//        {
-//            if (currentAlt == 10 && (currentYaw % TOTAL_ANGLE) == 0)
-//            {
-//                spiralSetUp = false;
-//                specialTrick = Normal;
-//            } else {
-//                if (currentAlt == GetAltRef() && currentYaw == GetYawRef())
-//                {
-//                    setAltRef(GetAltRef() - 10);
-//                    setYawRef(GetYawRef() - 45);
-//                }
-//            }
-//
-//        }
-//    }
 }
 
 
@@ -494,16 +433,16 @@ void landing(void)
         setYawRef(0);
     }
 
-//    if(xDisplayMutex != NULL)
-//    {
-//        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-//        int32_t currentYaw = getYaw();
-//        int32_t currentAlt = getAlt();
-//        xSemaphoreGive(xDisplayMutex);
-//    }
+    if(xDisplayMutex != NULL)
+    {
+        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+        int32_t currentYaw = getYaw();
+        int32_t currentAlt = getAlt();
+        xSemaphoreGive(xDisplayMutex);
+    }
 
-    int32_t currentYaw = getYaw();
-    int32_t currentAlt = getAlt();
+//    int32_t currentYaw = getYaw();
+//    int32_t currentAlt = getAlt();
 
     if (abs(currentYaw) < 10)
     {
@@ -534,13 +473,13 @@ void PIDControlYaw(void)
         int32_t currentYaw = 0;
         if (mode == Landing)
         {
-//            if(xDisplayMutex != NULL)
-//            {
-//                xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-//                currentYaw = getYaw();
-//                xSemaphoreGive(xDisplayMutex);
-//            }
-            currentYaw = getYaw();
+            if(xDisplayMutex != NULL)
+            {
+                xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+                currentYaw = getYaw();
+                xSemaphoreGive(xDisplayMutex);
+            }
+//            currentYaw = getYaw();
 
         } else {
             currentYaw = getYawTotal();
