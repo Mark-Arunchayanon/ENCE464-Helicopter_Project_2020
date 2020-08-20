@@ -124,15 +124,19 @@ void vDisplayTask (void *pvParameters)
 
     for ( ;; )
     {
-        if(xDisplayMutex != NULL)
-        {
-            xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-            yawReading = getYaw();
-            altReading = getAlt();
-            PWMmain = getMainPWM();
-            PWMtail = getTailPWM();
-            xSemaphoreGive(xDisplayMutex);
-        }
+//        if(xDisplayMutex != NULL)
+//        {
+//            xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+//            yawReading = getYaw();
+//            altReading = getAlt();
+//            PWMmain = getMainPWM();
+//            PWMtail = getTailPWM();
+//            xSemaphoreGive(xDisplayMutex);
+//        }
+        yawReading = getYaw();
+        altReading = getAlt();
+        PWMmain = getMainPWM();
+        PWMtail = getTailPWM();
 
 
         printString("Altitude = %4d%%", altReading, 0);

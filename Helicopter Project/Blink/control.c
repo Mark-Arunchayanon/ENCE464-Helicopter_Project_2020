@@ -269,13 +269,19 @@ int32_t GetYawRef(void)
 //                      If this is true, sets Altitude Reference to 50%
 void take_Off(void)
 {
-    if(xDisplayMutex != NULL)
-    {
-        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-        int32_t yaw = getYaw();
-        xSemaphoreGive(xDisplayMutex);
+    int32_t yaw;
+//    if(xDisplayMutex != NULL)
+//    {
+//        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+//        yaw = getYaw();
+//        if (abs(yaw) < 10) {
+//            setAltRef(50);
+//        }
+//        xSemaphoreGive(xDisplayMutex);
+//
+//    }
 
-    }
+    yaw = getYaw();
     if (abs(yaw) < 10) {
         setAltRef(50);
     }
@@ -419,15 +425,19 @@ void spinTrick(void)
         {
             error = currentYaw - 180;
             spinSetUp = true;
-        }
-
-        if(GetYawRef() != error)
-        {
-            setYawRef(currentYaw - 15);
+            setYawRef(error);
         } else {
             spinSetUp = false;
             specialTrick = Normal;
         }
+
+//        if(GetYawRef() != error)
+//        {
+//            setYawRef(currentYaw - 15);
+//        } else {
+//            spinSetUp = false;
+//            specialTrick = Normal;
+//        }
     } else if(specialTrick == Spin180Right)
     {
         int32_t currentYaw = getYawTotal();
@@ -435,16 +445,20 @@ void spinTrick(void)
         if(spinSetUp == false)
         {
             error = currentYaw + 180;
+            setYawRef(error);
             spinSetUp = true;
-        }
-
-        if(GetYawRef() != error)
-        {
-            setYawRef(currentYaw + 15);
         } else {
             spinSetUp = false;
             specialTrick = Normal;
         }
+
+//        if(GetYawRef() != error)
+//        {
+//            setYawRef(currentYaw + 15);
+//        } else {
+//            spinSetUp = false;
+//            specialTrick = Normal;
+//        }
     }
 }
 // *******************************************************
@@ -488,13 +502,16 @@ void landing(void)
         setYawRef(0);
     }
 
-    if(xDisplayMutex != NULL)
-    {
-        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-        int32_t currentYaw = getYaw();
-        int32_t currentAlt = getAlt();
-        xSemaphoreGive(xDisplayMutex);
-    }
+//    if(xDisplayMutex != NULL)
+//    {
+//        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+//        int32_t currentYaw = getYaw();
+//        int32_t currentAlt = getAlt();
+//        xSemaphoreGive(xDisplayMutex);
+//    }
+
+    int32_t currentYaw = getYaw();
+    int32_t currentAlt = getAlt();
 
     if (abs(currentYaw) < 10)
     {
@@ -525,12 +542,13 @@ void PIDControlYaw(void)
         int32_t currentYaw = 0;
         if (mode == Landing)
         {
-            if(xDisplayMutex != NULL)
-            {
-                xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-                currentYaw = getYaw();
-                xSemaphoreGive(xDisplayMutex);
-            }
+//            if(xDisplayMutex != NULL)
+//            {
+//                xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+//                currentYaw = getYaw();
+//                xSemaphoreGive(xDisplayMutex);
+//            }
+            currentYaw = getYaw();
 
         } else {
             currentYaw = getYawTotal();
@@ -567,25 +585,33 @@ void PIDControlAlt(void)
         AltIntError += Alt_error * DELTA_T;  //Integral error
         AltDerivError = (Alt_error-AltPreviousError) * 100;  //Derivative error
 
-        if(xPIDMutex != NULL)
-            {
-                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
-                AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
-                                    + AltIntError * ALT_INT_CONTROL
-                                    + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
-                                    + MAIN_OFFSET;
+//        if(xPIDMutex != NULL)
+//            {
+//                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
+//                AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
+//                                    + AltIntError * ALT_INT_CONTROL
+//                                    + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
+//                                    + MAIN_OFFSET;
+//
+//                AltControl = clamp(AltControl, 10, 90);
+//                xSemaphoreGive(xPIDMutex);
+//            }
+//
+//        if(xPIDMutex != NULL)
+//            {
+//                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
+//                SetMainPWM(AltControl);  //Sets the main duty cycle
+//                xSemaphoreGive(xPIDMutex);
+//            }
 
-                AltControl = clamp(AltControl, 10, 90);
-                xSemaphoreGive(xPIDMutex);
-            }
+        AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
+                            + AltIntError * ALT_INT_CONTROL
+                            + clamp(AltDerivError * ALT_DIF_CONTROL, -40, 60)
+                            + MAIN_OFFSET;
 
-        if(xPIDMutex != NULL)
-            {
-                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
-                SetMainPWM(AltControl);  //Sets the main duty cycle
-                xSemaphoreGive(xPIDMutex);
-            }
+        SetMainPWM(AltControl);  //Sets the main duty cycle
 
+        AltControl = clamp(AltControl, 10, 90);
         AltPreviousError = Alt_error;
         mainDuty = AltControl;
     }
