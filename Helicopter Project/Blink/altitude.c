@@ -189,17 +189,19 @@ void vADCSampleTask(void *pvParameters)
 
 void vADCTask(void *pvParameters)
 {
-//    TickType_t xLastWakeTime;
-//    xLastWakeTime = xTaskGetTickCount();
-    const TickType_t xDelay1s = pdMS_TO_TICKS(20);
+    TaskHandle_t xPIDTask = pvParameters;
+    TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+    const TickType_t xDelay30s = pdMS_TO_TICKS(30);
     BaseType_t xReceive = pdFALSE;
-//    char statusStr[MAX_STR_LEN + 1];
     uint32_t ADCSamples[QUEUE_SIZE];
     int i, j = 0;
 
 
     for ( ;; )
     {
+
+        vTaskDelayUntil(&xLastWakeTime, xDelay30s);
 
         xReceive = xQueueReceive(xADCQueue, &ADCSamples[i], portMAX_DELAY);
         if (xReceive == pdTRUE)
@@ -216,6 +218,7 @@ void vADCTask(void *pvParameters)
                 }
                 meanVal = sum / 5;
                 percentAlt = 100*((int32_t)refAltitude-meanVal) / RANGE_ALTITUDE;
+                xTaskNotifyGive(xPIDTask);
             }
         }
 
@@ -231,30 +234,6 @@ void vADCTask(void *pvParameters)
             calibrate_counter++;
         }
 
-        //
-        // Guard UART from concurrent access. Print the currently
-        // blinking LED.
-        //
-//        xSemaphoreTake(g_pUARTSemaphore, portMAX_DELAY);
-//        printf("Left Button is pressed.\n");
-//        xSemaphoreGive(g_pUARTSemaphore);
-
-//        usprintf (statusStr, "\nulValue: %d\r", ulValue);
-//        UARTSend (statusStr);
-//
-//        usprintf (statusStr, "\nADC Buffer: %d\r", height);
-//        UARTSend (statusStr);
-//
-//        usprintf (statusStr, "\nReference: %d\r", refAltitude);
-//        UARTSend (statusStr);
-
-//        usprintf (statusStr, "\r\nMean: %d", meanVal);
-//        UARTSend (statusStr);
-
-//        usprintf (statusStr, "\r\nPercent: %d", percentAlt);
-//        UARTSend (statusStr);
-
-        vTaskDelay(xDelay1s);
     }
 
 }

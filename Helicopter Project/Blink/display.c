@@ -121,6 +121,7 @@ void vDisplayTask (void *pvParameters)
     int32_t altReading = 0;
     int32_t PWMmain = 0;
     int32_t PWMtail = 0;
+    uint32_t i = 0;
 
     for ( ;; )
     {
@@ -159,6 +160,16 @@ void vDisplayTask (void *pvParameters)
         UARTSend (statusStr);
         usprintf (statusStr, "Mode: %s | 360 Yaw: %d\n\r", getMode(), getYawTotal());
         UARTSend (statusStr);
+
+        if(i % 5 == 0)
+        {
+            static char runtime_stats_buffer[512];
+            vTaskGetRunTimeStats(runtime_stats_buffer);
+            UARTSend(runtime_stats_buffer);
+        } else {
+            i++;
+        }
+
 
 //        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
 //        UARTSend (statusStr);

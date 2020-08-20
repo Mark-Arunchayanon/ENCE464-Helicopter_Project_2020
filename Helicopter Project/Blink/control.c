@@ -221,7 +221,7 @@ int32_t clamp(int32_t x, int32_t min, int32_t max)
 // TAKES:               New altitude reference as a percentage
 void setAltRef(int32_t newAltRef)
 {
-    AltRef = clamp(newAltRef, 10, 100);
+    AltRef = clamp(newAltRef, 0, 100);
 }
 
 
@@ -281,10 +281,6 @@ void take_Off(void)
 
     }
 
-//    yaw = getYaw();
-//    if (abs(yaw) < 10) {
-//        setAltRef(50);
-//    }
 }
 
 
@@ -396,18 +392,21 @@ void spinTrick(void)
 // findYawRef:          Turns on main and tail motor. Spins the helicopter clockwise
 //                      and  reads PC4 to check if the helicopter is at the reference
 //                      Once the reference is found, resets yaw reference to 0 and current yaw to 0
-//void findYawRef(void)
-//{
-//
-//    //Reads the PC4 values
-//    PC4Read = GPIOPinRead(GPIO_PORTC_BASE, GPIO_PIN_4);
-//    // GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
-//    if(PC4Read == 0) {
-//        ref_Found = true; //Origin Found
-//        resetYaw(); //Reset current yaw value to 0
-//        setYawRef(0); // Resets yaw reference to 0
-//    }
-//}
+void findYawRef(void)
+{
+    int32_t currentYaw;
+    if(xDisplayMutex != NULL)
+    {
+        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+        currentYaw = getYaw();
+        xSemaphoreGive(xDisplayMutex);
+    }
+
+    if(ref_Found == false)
+    {
+        setYawRef(currentYaw + YAW_STEP_RATE);
+    }
+}
 
 void YawRefIntHandler(void)
 {
@@ -468,7 +467,7 @@ void landing(void)
 //                      Ensures the yaw follows the yaw reference
 void PIDControlYaw(void)
 {
-    if( (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing))
+    if((mode == Initialising) || (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing))
     {
         int32_t currentYaw = 0;
         if (mode == Landing)
@@ -509,7 +508,7 @@ void PIDControlYaw(void)
 //                      Ensures the altitude follows the altitude reference
 void PIDControlAlt(void)
 {
-    if ((mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing)) {
+    if ((mode == Initialising) || (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing)) {
 
         Alt_error = AltRef - getAlt();  //Calculates altitude error
 
@@ -640,14 +639,14 @@ void helicopterStates(void){
             resetIntControl();                 //Reset any previous error terms
 
             //Sets initial power percentages
-            SetMainPWM(15);
-            SetTailPWM(20);
+            setAltRef(10);
+
         }
         break;
 
     case Initialising:
 
-//        findYawRef();                          //Spins clockwise until the reference point is found
+        findYawRef();                          //Spins clockwise until the reference point is found
         if(ref_Found) {
             mode = TakeOff;
             ref_Found = false;//Change mode to takeoff once the reference point is found
@@ -688,13 +687,15 @@ void helicopterStates(void){
 
 void vControlTask (void *pvParameters)
 {
-    TickType_t xDelay10s = pdMS_TO_TICKS(10);
-    TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+//    TickType_t xDelay10s = pdMS_TO_TICKS(10);
+//    TickType_t xLastWakeTime;
+//    xLastWakeTime = xTaskGetTickCount();
 
     for ( ;; )
     {
-        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
+//        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
+
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         GetSwitchState();
         PIDControlAlt();
