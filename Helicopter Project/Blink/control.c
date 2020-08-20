@@ -322,12 +322,8 @@ void spiralTrick(void)
         if(AltSetUp == false)
         {
             error = currentAlt + 50;
+            setAltRef(error);
             AltSetUp = true;
-        }
-
-        if(GetYawRef() >= error)
-        {
-            setAltRef(currentAlt + 25);
         } else {
             AltSetUp = false;
             specialTrick = Normal;
@@ -339,12 +335,8 @@ void spiralTrick(void)
         if(AltSetUp == false)
         {
             error = currentAlt - 50;
+            setAltRef(error);
             AltSetUp = true;
-        }
-
-        if(GetYawRef() <= error)
-        {
-            setAltRef(currentAlt - 25);
         } else {
             AltSetUp = false;
             specialTrick = Normal;
