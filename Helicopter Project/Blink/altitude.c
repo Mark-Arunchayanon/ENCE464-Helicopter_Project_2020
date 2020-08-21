@@ -64,20 +64,15 @@
 /***********************************************************************************************
  * Global Variables
  **********************************************************************************************/
-static uint32_t refAltitude = 1000;       //Reference Altitude
-//static circBuf_t g_inBuffer;        // Buffer of size BUF_SIZE integers (sample values)
+static uint32_t refAltitude = 1000;       //Reference Altitude???????????????????????????????????????????????????????????????????????????????
 uint32_t ulValue;
-int calibrate_flag =    0;
+int calibrate_flag = 0;
 int calibrate_counter = 0;
-static int32_t percentAlt =    0;
-//int32_t percentAlt =    0;
 static int32_t meanVal =0;
 
 
-// Queue for ADC sample from pin to calculation
-QueueHandle_t xADCQueue = NULL;
-extern xSemaphoreHandle g_pADCSemaphore;
-
+QueueHandle_t xADCQueue = NULL;     // Queue for ADC sample from pin to calculation
+extern xSemaphoreHandle g_pADCSemaphore;    // Semaphore declaration
 
 
 // The handler for the ADC conversion complete interrupt. Writes to the ADC queue.

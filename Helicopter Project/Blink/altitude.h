@@ -33,44 +33,58 @@
 void ADCIntHandler(void);
 
 
-//  *****************************************************************************
-//  initADC:    Configures and enables the ADC
-//  Taken from: Week4Lab ADCDemo1.c
-void
-initADC (void);
+/***********************************************************************************************
+ * initADC: Configures and enables the ADC peripherals and software declarations.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void initADC (void);
 
 
-//  *****************************************************************************
-//  computeAltitude: Calculates the average altitude from the ADC.
-//  Taken from:      Week4Lab ADCDemo1.c main function
-//  RETURNS:         The calculated ADC altitude value as a int32_t
-//int32_t
-//computeAltitude(void);
+/***********************************************************************************************
+ * getAlt: Getter method which returns the altitude converted to percentage format
+ *
+ * Authors: M Arunchyanon, S. Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
 int32_t getAlt (void);
 
 
-//  *****************************************************************************
-//  resetAltitude: Resets the refAltitude to be current ADC altitude.
-void
-resetAltitude(void);
+/***********************************************************************************************
+ * resetAltitude: Resets the altitude reference to the most recently sampled ADC value.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void resetAltitude(void);
 
 
-//  *****************************************************************************
-//  percentAltitude: Converts the ADC Altitude into a usable percentage altitude
-//                   using a 0.8V difference as the maximum height
-//  RETURNS: A Height Percentage as a int32_t from the reference height.
-int32_t
-percentAltitude(void);
+/***********************************************************************************************
+ * percentAltitude: Converts the ADC sample into a readable percentage altitude.
+ *
+ * Authors: M Arunchyanon, Sasiru Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+int32_t percentAltitude(void);
 
 
-//  *****************************************************************************
-//  bufferLocation: Returns the location of the circular buffer
-//  RETURNS:        A pointer to a circbuf_t
-//circBuf_t*
-//bufferLocation(void);
-
+/***********************************************************************************************
+ * vADCSampleTask: Scheduled task that polls the ADC interrupt at minium 30Hz ??????????????????????????????????????????????????????????????????????????????
+ *
+ * Authors: M Arunchyanon, S. Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
 void vADCSampleTask(void *pvParameters);
 
+
+/***********************************************************************************************
+ * vADCSampleTask: Scheduled task reads ADC values from the ADC queue and calculates the
+ *                 altitude value using the 0.8V as the maximum height.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
 void vADCTask(void *pvParameters);
 
 #endif /*ALTITUDE_H_*/
