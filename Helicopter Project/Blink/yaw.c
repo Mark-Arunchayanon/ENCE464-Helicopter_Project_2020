@@ -63,19 +63,24 @@ extern int32_t degrees = 0;
 
 // Uses the current slot number on the disk to return an angle in degrees from the original
 // reference point. Returns angle value between -180 < Yaw < 180 degrees.
-int32_t getYaw(void) {
+int32_t getYaw(void)
+{
     int32_t angle = 0;
     int32_t refnum = slot;
-    while (refnum > (NUM_SLOTS / 2)) {
+
+    while (refnum > (NUM_SLOTS / 2))
+    {
         refnum -= NUM_SLOTS;
     }
-    while (refnum < (-NUM_SLOTS / 2)) {
+    while (refnum < (- NUM_SLOTS / 2))
+    {
         refnum += NUM_SLOTS;
     }
-//  Slots converted into an angle and returned as an angle.
-    angle = TOTAL_ANGLE * refnum / NUM_SLOTS;
+
+    angle = TOTAL_ANGLE * refnum / NUM_SLOTS;   // Slots converted into an angle and returned as an angle.
     return angle;
 }
+
 
 int32_t getYawTotal(void)
 {
@@ -87,23 +92,22 @@ int32_t getYawTotal(void)
     return angle;
 }
 
-// *******************************************************
-// resetYaw:        Resets the slot number to 0
-void resetYaw (void) {
+
+// Resets the slot number to 0
+void resetYaw (void)
+{
     slot = 0;
 }
 
 
-// *******************************************************
-//  YawIntHandler:  Interrupt handler for the yaw interrupt.
-//                  Measures Phasse A and Phase B.
-//                  If moving clockwise, add 1 to slot
-//                  If moving anti-clockwise, minus 1 to slot
-void YawIntHandler (void) {
-    //Clear the interrupt bits
+// Interrupt handler for the yaw interrupt. Measures Phase A and Phase B. If moving clockwise,
+// add 1 to slot If moving anti-clockwise, minus 1 to slot.
+void YawIntHandler (void)
+{
+    // Clear the interrupt bits
     GPIOIntClear(GPIO_PORTB_BASE, GPIO_INT_PIN_0 | GPIO_INT_PIN_1);
 
-//  Sets nextState based off status of Pin 0 & 1
+    // Sets nextState based off status of Pin 0 & 1
     nextState = (enum quad)GPIOPinRead(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1);
     switch(State)
     {
@@ -167,14 +171,11 @@ void YawIntHandler (void) {
     State = nextState;
 }
 
-// *******************************************************
-//  YawIntHandler: Interrupt initialisation for the yaw interrupt.
-//                 Sets PB0 and PB1 to be inputs, enables interrupts on GPIOB.
-//                 An interrupt occurs on both edges of PB0 and PB1 and when triggered,
-//                 runs the YawIntHandler function
+// Initialization for associated with yaw. Interrupt initialisation for the yaw interrupt.
+// Sets PB0 and PB1 to be inputs, enables interrupts on GPIOB. An interrupt occurs on both
+// edges of PB0 and PB1 and when triggered, runs the YawIntHandler function.
 void initYaw (void)
 {
-
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
     while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOB));
     GPIOPinTypeGPIOInput(GPIO_PORTB_BASE, GPIO_PIN_0 | GPIO_PIN_1); //Sets PIN) & PIN1 as inputs
@@ -186,47 +187,3 @@ void initYaw (void)
 
     resetYaw();
 }
-
-
-
-//BaseType_t takeYawSem (void)
-//{
-//    BaseType_t take = NULL;
-//    take = xSemaphoreTake( xYawSem, portMAX_DELAY );
-//
-//    return take;
-//}
-//
-//void giveYawSem (void)
-//{
-//    xSemaphoreGive( xYawSem);
-//}
-//
-//
-//void vYawTask (void *pvParameters)
-//{
-//
-//    const TickType_t xDelay1s = pdMS_TO_TICKS(20);
-////    char statusStr[MAX_STR_LEN + 1];
-//
-//    resetYaw();
-//
-//    for ( ;; )
-//    {
-//
-//        if (xYawSem != NULL)
-//        {
-//            if (takeYawSem() == pdTRUE)
-//            {
-//                degrees = getYaw();
-//                giveYawSem();
-//            }
-//        }
-////        usprintf (statusStr, "\nYaw: %d", degrees);
-////        UARTSend (statusStr);
-//
-//        vTaskDelay(xDelay1s);
-//    }
-//}
-
-
