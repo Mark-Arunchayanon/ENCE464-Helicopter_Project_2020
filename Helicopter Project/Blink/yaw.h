@@ -1,24 +1,33 @@
 #ifndef YAW_H_
 #define YAW_H_
 
+/***********************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * yaw - Interrupt based calculations for yaw by tracking slot changes. Also contains support
+ *       functions such as getters, setters and resets.
+ *
+ * Original Authors:        N. James
+ *                          L. Trenberth
+ *                          M. Arunchayanon
+ * Updated to FreeRTOS by:  G. Thiele
+ *                          M. Arunchayanon
+ *                          S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ **********************************************************************************************/
 
-//*****************************************************************************
-//
-// Yaw - Calculating yaw slot numbers and angles functions through an Interrupt
-//
-// Author:  N. James
-//          L. Trenberth
-//          M. Arunchayanon
-// Last modified:   23.4.2019
-//*****************************************************************************
 
 
 
-
-// *******************************************************
-// getYaw:          Uses the current slot number on the disk to
-//                  return an angle in degrees from the original reference point.
-// RETURNS:         Angle value between -180 < Yaw < 180 degrees.
+/***********************************************************************************************
+ * getyaw: Uses the current slot number on the disk to return an angle in degrees from the
+ *         original reference point. Returns angle value between -180 < Yaw < 180 degrees.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
 int32_t
 getYaw(void);
 

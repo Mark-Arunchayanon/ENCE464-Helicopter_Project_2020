@@ -1,18 +1,24 @@
-//*****************************************************************************
-//
-// yaw - Calculating yaw slot numbers and angles functions through an Interrupt
-//
-// Author:  N. James
-//          L. Trenberth
-//          M. Arunchayanon
-// Last modified:   31.5.2019
-//*****************************************************************************
+/***********************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * yaw - Interrupt based calculations for yaw by tracking slot changes. Also contains support
+ *       functions such as getters, setters and resets.
+ *
+ * Original Authors:        N. James
+ *                          L. Trenberth
+ *                          M. Arunchayanon
+ * Updated to FreeRTOS by:  G. Thiele
+ *                          M. Arunchayanon
+ *                          S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ **********************************************************************************************/
 
-#define NUM_SLOTS               448
-#define TOTAL_ANGLE             360
-#define FIND_REF_MAIN           30 //duty cycle for finding the reference point
-#define FIND_REF_TAIL           40
 
+/***********************************************************************************************
+ * Includes
+ **********************************************************************************************/
 //#include "inc/tm4c123gh6pm.h"
 #include <stdint.h>
 #include <stdbool.h>
@@ -34,21 +40,29 @@
 #include "uart.h"
 #include "semphr.h"
 
-// Sets quadrature encoding states A, B, C, D
-enum quad {A = 0, B = 1, C = 3, D = 2};
+
+/***********************************************************************************************
+ * Constants/Definitions
+ **********************************************************************************************/
+#define NUM_SLOTS               448
+#define TOTAL_ANGLE             360
+#define FIND_REF_MAIN           30 //duty cycle for finding the reference point
+#define FIND_REF_TAIL           40
+
+
+/***********************************************************************************************
+ * Global Variables
+ **********************************************************************************************/
+enum quad {A = 0, B = 1, C = 3, D = 2}; // Sets quadrature encoding states A, B, C, D
 enum quad State;
 enum quad nextState;
 
-//Sets the slot number, the number of slots moved around the disc.
-int32_t slot;
-
+int32_t slot;   //Sets the slot number, the number of slots moved around the disc.
 extern int32_t degrees = 0;
 
 
-// *******************************************************
-// getYaw:          Uses the current slot number on the disk to
-//                  return an angle in degrees from the original reference point.
-// RETURNS:         Angle value between -180 < Yaw < 180 degrees.
+// Uses the current slot number on the disk to return an angle in degrees from the original
+// reference point. Returns angle value between -180 < Yaw < 180 degrees.
 int32_t getYaw(void) {
     int32_t angle = 0;
     int32_t refnum = slot;
