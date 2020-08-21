@@ -97,10 +97,10 @@ void vDisplayTask (void *pvParameters)
     int32_t altReading = 0;
     int32_t PWMmain = 0;
     int32_t PWMtail = 0;
-    uint32_t i = 0;
 
     for ( ;; )
     {
+        // Read position and PWM values
         yawReading = getYaw();
         altReading = getAlt();
         PWMmain = getMainPWM();
@@ -108,11 +108,13 @@ void vDisplayTask (void *pvParameters)
 
         UARTSend("\033[2J\033[H");
 
+        // Print output
         printString("Altitude = %4d%%", altReading, 0);
         printString("Yaw      = %4d", yawReading, 1);
         printString("Main PWM = %4d%%", PWMmain, 2);
         printString("Tail PWM = %4d%%", PWMtail, 3);
 
+        // Send output to UART
         usprintf (statusStr, "Alt = %2d | Yaw = %2d |", altReading, yawReading);
         UARTSend (statusStr);
         usprintf (statusStr, "Main PWM = %2d | Tail PWM = %2d |\n\r", getMainPWM(), getTailPWM());
