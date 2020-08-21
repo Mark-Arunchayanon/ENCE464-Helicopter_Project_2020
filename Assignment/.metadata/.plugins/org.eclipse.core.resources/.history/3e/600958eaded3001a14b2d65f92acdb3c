@@ -1,0 +1,38 @@
+#include "FreeRTOS.h"
+#include "task.h"
+
+/**
+ * main.c
+ */
+
+void NullTaskFunc(void *); //Prototpe so we can include it in main, while the function code is
+                           //actually underneath main
+
+int main(void)
+{
+    // Prototype for xTaskCreate:
+    //
+    // BaseType_t xTaskCreate( TaskFunction_t pxTaskCode,
+    // const char * const pcName, /*lint !e971 Unqualified char types are allowed
+    // for strings and single characters only. */
+    // const configSTACK_DEPTH_TYPE usStackDepth,
+    // void * const pvParameters,
+    // UBaseType_t uxPriority,
+    // TaskHandle_t * const pxCreatedTask );
+    if (pdTRUE != xTaskCreate(NullTaskFunc, "Null Task", 32, (void *)1, 4, NULL))
+    {
+        while(1); // Oh no! Must not have had enough memory to create the task.
+    }
+    vTaskStartScheduler(); // Start FreeRTOS!!
+    // Should never get here since the RTOS should never "exit".
+    while (1);
+}
+
+// Our RTOS "task" - does absolute jack squat
+void NullTaskFunc(void *pvParameters)
+{
+    while (1)
+    {
+        vTaskDelay(10000); //With this task always delaying, the RTOS Idle Task runs almost all the time.
+    }
+}
