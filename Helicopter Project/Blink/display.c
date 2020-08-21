@@ -1,14 +1,23 @@
-//*****************************************************************************
-//
-//  Display - Functions used to output values on Display and UART
-//
-//  Author:  N. James
-//           L. Trenberth
-//           M. Arunchayanon
-//     Last modified:   20.4.2019
-//*****************************************************************************
+/*************************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * display:         Functions used to output values on Display and UART
+ *
+ * Original Authors:       N. James
+ *                         L. Trenberth
+ *                         M. Arunchayanon
+ * Updated to FreeRTOS by: G. Thiele
+ *                         M. Arunchayanon
+ *                         S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ ************************************************************************************************/
 
 
+/*************************************************************************************************
+ * Includes
+ ************************************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -38,31 +47,29 @@
 #include "task.h"
 #include "semphr.h"
 
-SemaphoreHandle_t xDisplayMutex;
 
-//  *****************************************************************************
-//  initDisplay:        Initialises Display using OrbitLED functions
+/***********************************************************************************************
+ * Constants/Definitions
+ **********************************************************************************************/
+SemaphoreHandle_t xDisplayMutex; // Create mutex for controlling access to yaw and altitude.
+
+
+// Initialises Display using OrbitLED functions
 void initDisplay (void)
 {
-    // Initialise the Orbit OLED display
     OLEDInitialise ();
     xDisplayMutex = xSemaphoreCreateMutex();
 }
 
 
-//  *****************************************************************************
-//  introLine:          Prints the intro line on the OLED Display
+// Prints the intro line on the OLED Display
 void introLine (void)
 {
     OLEDStringDraw ("Heli Project", 0, 0);
 }
 
 
-//  *****************************************************************************
-//  printString:        Prints the input format and line contents on the given line number on OLED Display
-//  TAKES:              line_format - The format to print the string in, including a integer placeholder
-//                      line_contents - The integer to print on the line
-//                      line_number - The line number integer to print the string on.
+// Prints the input format and line contents on the given line number on OLED Display
 void printString(char* restrict line_format, int32_t line_contents, uint8_t line_number)
 {
     char string[MAX_STR_LEN + 1];
@@ -71,48 +78,17 @@ void printString(char* restrict line_format, int32_t line_contents, uint8_t line
 }
 
 
-//*****************************************************************************
-//  initButtonCheck:    Initialises left and up buttons on the micro-controller
+// Initialises left and up buttons on the micro-controller
 void initButtonCheck (void) {
-    SysCtlPeripheralReset (LEFT_BUT_PERIPH);//setting up the LEFT button GPIO
-    SysCtlPeripheralReset (UP_BUT_PERIPH);//setting the UP button GPIO
-    SysCtlPeripheralReset (DOWN_BUT_PERIPH);//setting the DOWN button GPIO
-    SysCtlPeripheralReset (RIGHT_BUT_PERIPH);//setting the RIGHT button GPIO
+    SysCtlPeripheralReset (LEFT_BUT_PERIPH);  //setting up the LEFT button GPIO
+    SysCtlPeripheralReset (UP_BUT_PERIPH);    //setting the UP button GPIO
+    SysCtlPeripheralReset (DOWN_BUT_PERIPH);  //setting the DOWN button GPIO
+    SysCtlPeripheralReset (RIGHT_BUT_PERIPH); //setting the RIGHT button GPIO
 }
 
 
-////  *****************************************************************************
-////  OutputToDisplay:    Displays the helicopter altitude, height and references
-////  NOTE:               This function is not currently implemented, though is included for testing
-//void OutputToDisplay (void)
-//{
-//    printString("Altitude = %4d%%", percentAlt, 0);
-////    printString("Yaw Angle = %4d", getYaw(), 1);
-////    printString("Alt Ref = %4d", GetAltRef(), 2);
-////    printString("Yaw Ref = %4d", GetYawRef(), 3);
-//}
-
-
-////*****************************************************************************
-////  OutputToDisplay:    Uses UART to send yaw and altitude references,
-////                      duty cycles and the current mode
-//void OutputToUART (void)
-//{
-//    char statusStr[MAX_STR_LEN + 1];
-//    if (slowTick)
-//    {
-//        slowTick = false;
-////        usprintf (statusStr, "YawRef=%2d Yaw=%2d | \r\n", GetYawRef(), getYaw()); // Form status message
-////        UARTSend (statusStr); // Send to the console
-//        usprintf (statusStr, "AltRef=%2d Alt=%2d | \r\n", percentAlt, percentAlt);
-//        UARTSend (statusStr);
-////        usprintf (statusStr, "MDut=%2d TDuty=%2d | \r\n", getMainDuty(), getTailDuty());
-////        UARTSend (statusStr);
-////        usprintf (statusStr, "Mode=%s | \r\n", getMode());
-////        UARTSend (statusStr);
-//    }
-//}
-
+// A task scheduled by FreeRTOS to update the display. Prints a readout of
+// position and control details to the display and UART. Has a task priority of 3.
 void vDisplayTask (void *pvParameters)
 {
     char statusStr[MAX_STR_LEN + 1];
@@ -125,32 +101,15 @@ void vDisplayTask (void *pvParameters)
 
     for ( ;; )
     {
-//        if(xDisplayMutex != NULL)
-//        {
-//            xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-//            yawReading = getYaw();
-//            altReading = getAlt();
-//            PWMmain = getMainPWM();
-//            PWMtail = getTailPWM();
-//            xSemaphoreGive(xDisplayMutex);
-//        }
         yawReading = getYaw();
         altReading = getAlt();
         PWMmain = getMainPWM();
         PWMtail = getTailPWM();
 
-
         printString("Altitude = %4d%%", altReading, 0);
         printString("Yaw      = %4d", yawReading, 1);
         printString("Main PWM = %4d%%", PWMmain, 2);
         printString("Tail PWM = %4d%%", PWMtail, 3);
-
-
-//        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r"
-//                "AltRef = %2d | YawRef = %2d |", percentAlt, degrees, AltRef, YawRef);
-//        UARTSend (statusStr);
-//        usprintf (statusStr, "\033[2J\033[H Alt = %2d | Yaw = %2d |\n\r", percentAlt, degrees);
-//        UARTSend (statusStr);
 
         usprintf (statusStr, "Alt = %2d | Yaw = %2d |", altReading, yawReading);
         UARTSend (statusStr);
@@ -160,21 +119,6 @@ void vDisplayTask (void *pvParameters)
         UARTSend (statusStr);
         usprintf (statusStr, "Mode: %s | 360 Yaw: %d\n\r", getMode(), getYawTotal());
         UARTSend (statusStr);
-
-//        if(i % 5 == 0)
-//        {
-//            static char runtime_stats_buffer[512];
-//            vTaskGetRunTimeStats(runtime_stats_buffer);
-//            UARTSend(runtime_stats_buffer);
-//        } else {
-//            i++;
-//        }
-
-
-//        usprintf (statusStr, "AltRef=%2d Alt=%2d | YawRef=%2d Yaw=%2d | \033[2J\033[H", percentAlt, percentAlt);
-//        UARTSend (statusStr);
-//        usprintf (statusStr, "YawRef=%2d Yaw=%2d | \033[2J\033[H", degrees, degrees);
-//        UARTSend (statusStr);
 
         vTaskDelay(xDelay1s);
     }
