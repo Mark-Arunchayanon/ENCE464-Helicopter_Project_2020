@@ -19,7 +19,7 @@
 /***********************************************************************************************
  * Includes
  **********************************************************************************************/
-//#include "inc/tm4c123gh6pm.h"
+#include "inc/tm4c123gh6pm.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include "stdlib.h"
@@ -30,10 +30,7 @@
 #include "driverlib/pin_map.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/rom.h"
-//#include "control.h"
-//#include "motor.h"
 #include "yaw.h"
-
 
 #include "FreeRTOS.h"
 #include "task.h"

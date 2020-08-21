@@ -43,6 +43,7 @@
 #include "altitude.h"
 #include "uart.h"
 #include "queue.h"
+#include "altitude.h"
 
 
 /***********************************************************************************************
