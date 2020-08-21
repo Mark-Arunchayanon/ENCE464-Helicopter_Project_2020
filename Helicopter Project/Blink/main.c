@@ -56,7 +56,7 @@
  **********************************************************************************************/
 #define BUF_SIZE                    10
 #define TASK_STACK_DEPTH            128
-#define DISPLAY_TASK_STACK_DEPTH    768
+#define DISPLAY_TASK_STACK_DEPTH    1024
 
 // Task priority levels, higher numbers will be executed first.
 #define BUTTON_TASK_PRIORITY        3

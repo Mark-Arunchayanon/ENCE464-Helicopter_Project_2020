@@ -385,21 +385,21 @@ void spinTrick(void)
 // findYawRef:          Turns on main and tail motor. Spins the helicopter clockwise
 //                      and  reads PC4 to check if the helicopter is at the reference
 //                      Once the reference is found, resets yaw reference to 0 and current yaw to 0
-void findYawRef(void)
-{
-
-    if(xDisplayMutex != NULL)
-    {
-        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-        Yaw.Val = getYaw();
-        xSemaphoreGive(xDisplayMutex);
-    }
-
-    if(ref_Found == false)
-    {
-        setYawRef(Yaw.Val - YAW_STEP_RATE);
-    }
-}
+//void findYawRef(void)
+//{
+//
+//    if(xDisplayMutex != NULL)
+//    {
+//        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
+//        Yaw.Val = getYaw();
+//        xSemaphoreGive(xDisplayMutex);
+//    }
+//
+//    if(ref_Found == false)
+//    {
+//        setYawRef(Yaw.Val - YAW_STEP_RATE);
+//    }
+//}
 
 void YawRefIntHandler(void)
 {
@@ -459,7 +459,7 @@ void landing(void)
 //                      Ensures the yaw follows the yaw reference
 void PIDControlYaw(void)
 {
-    if((mode == Initialising) || (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing))
+    if((mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing))
     {
         Yaw.Val = 0;
         if (mode == Landing)
@@ -500,7 +500,7 @@ void PIDControlYaw(void)
 //                      Ensures the altitude follows the altitude reference
 void PIDControlAlt(void)
 {
-    if ((mode == Initialising) || (mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing)) {
+    if ((mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing)) {
 
         Alt.Err = Alt.Ref - getAlt();  //Calculates altitude error
 
@@ -597,14 +597,15 @@ void resetIntControl(void)
 //                      LEFT and RIGHT are used to increase/decrease yaw reference
 void RefUpdate(void)
 {
+    int32_t alt = GetAltRef();
     if(mode == Flying) {
         if ((checkButton (UP) == PUSHED) && (Alt.Ref < ALT_MAX))
         {
-            setAltRef(GetAltRef() + ALT_STEP_RATE);
+            setAltRef(Alt.Ref + ALT_STEP_RATE);
         }
         if ((checkButton (DOWN) == PUSHED) && (Alt.Ref > ALT_MIN))
         {
-            setAltRef(GetAltRef() - ALT_STEP_RATE);
+            setAltRef(Alt.Ref - ALT_STEP_RATE);
         }
         if (checkButton (LEFT) == PUSHED )
         {
@@ -633,13 +634,14 @@ void helicopterStates(void){
             //Sets initial power percentages
 //            setAltRef(10);
             SetMainPWM(0);
+            SetTailPWM(15);
 
         }
         break;
 
     case Initialising:
 
-        findYawRef();                          //Spins clockwise until the reference point is found
+//        findYawRef();                          //Spins clockwise until the reference point is found
         if(ref_Found) {
             mode = TakeOff;
             ref_Found = false;//Change mode to takeoff once the reference point is found

@@ -23,6 +23,9 @@
 //*****************************************************************************
 
 #include <stdint.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "uart.h"
 
 // FreeRTOS handlers
 extern void xPortPendSVHandler(void);
@@ -303,4 +306,15 @@ IntDefaultHandler(void)
     while(1)
     {
     }
+}
+
+
+void vApplicationStackOverflowHook( TaskHandle_t xTask,
+                                    signed char *pcTaskName )
+{
+  UARTSend("OVERFLOW\r\n");
+  UARTSend((char*)pcTaskName);
+    while (1) {
+    ;
+  }
 }

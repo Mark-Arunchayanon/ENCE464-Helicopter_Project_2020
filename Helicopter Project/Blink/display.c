@@ -106,6 +106,8 @@ void vDisplayTask (void *pvParameters)
         PWMmain = getMainPWM();
         PWMtail = getTailPWM();
 
+        UARTSend("\033[2J\033[H");
+
         printString("Altitude = %4d%%", altReading, 0);
         printString("Yaw      = %4d", yawReading, 1);
         printString("Main PWM = %4d%%", PWMmain, 2);
@@ -119,6 +121,14 @@ void vDisplayTask (void *pvParameters)
         UARTSend (statusStr);
         usprintf (statusStr, "Mode: %s | 360 Yaw: %d\n\r", getMode(), getYawTotal());
         UARTSend (statusStr);
+
+
+
+        static char runtime_stats_buffer[512] = { 0 };
+
+        vTaskGetRunTimeStats(runtime_stats_buffer);
+
+        UARTSend(runtime_stats_buffer);
 
         vTaskDelay(xDelay1s);
     }

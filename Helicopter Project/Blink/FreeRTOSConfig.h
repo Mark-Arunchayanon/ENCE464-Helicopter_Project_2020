@@ -17,11 +17,17 @@
  * within FreeRTOSConfig.h.
  */
 
-//#define configGENERATE_RUN_TIME_STATS 1
-//#define configUSE_STATS_FORMATTING_FUNCTIONS 1
-//#define configUSE_TRACE_FACILITY 1
-//#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() do {} while (0)
-//#define portGET_RUN_TIME_COUNTER_VALUE() xTaskGetTickCount()
+#define configGENERATE_RUN_TIME_STATS 1
+
+#define configUSE_STATS_FORMATTING_FUNCTIONS 1
+
+#define configUSE_TRACE_FACILITY 1
+
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() do {} while (0)
+
+#define portGET_RUN_TIME_COUNTER_VALUE() xTaskGetTickCount()
+
+#define configCHECK_FOR_STACK_OVERFLOW 2
 
 #define configMINIMAL_STACK_SIZE 128 // Idle task stack (in 32-bit words)
 

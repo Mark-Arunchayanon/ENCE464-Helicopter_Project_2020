@@ -110,6 +110,7 @@ void initADC (void)
     {
         usprintf (statusStr, "Could not create ADC queue");
         UARTSend (statusStr);
+        while (1);
     }
     // Create mutex for use while altitude is being reset
 //    xADCCalibrationMutex = xSemaphoreCreateMutex();
@@ -156,7 +157,7 @@ void vADCSampleTask(void *pvParameters)
         vTaskDelayUntil(&xLastWakeTime, xDelay30s);
 
         ADCProcessorTrigger(ADC0_BASE, 3);
-        ADCIntHandler();
+        // ADCIntHandler();
     }
 }
 
