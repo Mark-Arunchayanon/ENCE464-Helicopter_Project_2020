@@ -1,23 +1,36 @@
 #ifndef ALTITUDE_H_
 #define ALTITUDE_H_
-//*****************************************************************************
-//
-// Altitude - File containing ADC and altitude calculations
-//
-// Author:  N. James
-//          L. Trenberth
-//          M. Arunchayanon
-// Last modified:   20.4.2019
-//*****************************************************************************
+/***********************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * altitude:        Support for a set of FOUR specific buttons on the Tiva/Orbit.
+ *                  ENCE361 sample code.
+ *                  The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
+ *                  LEFT and RIGHT on the Tiva.
+ *
+ * Note:            pin PF0 (the pin for the RIGHT pushbutton - SW2 on
+ *                  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
+ *
+ * Original Author:         N. James
+ *                          L. Trenberth
+ *                          M. Arunchayanon
+ * Updated to FreeRTOS by:  G. Thiele
+ *                          M. Arunchayanon
+ *                          S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ **********************************************************************************************/
 
 
-
-//  *****************************************************************************
-//  ADCIntHandler: The handler for the ADC conversion complete interrupt.
-//                 Writes to the circular buffer.
-//  Taken from:    Week4Lab ADCDemo1.c
-void
-ADCIntHandler(void);
+/***********************************************************************************************
+ * ADCIntHandler: The handler for the ADC conversion complete interrupt.
+ *                Writes to the ADC queue.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void ADCIntHandler(void);
 
 
 //  *****************************************************************************
