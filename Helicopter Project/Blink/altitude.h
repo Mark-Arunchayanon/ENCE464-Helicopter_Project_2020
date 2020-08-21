@@ -4,13 +4,8 @@
  *
  * ENCE464 FreeRTOS Helicopter Rig Controller Project
  *
- * altitude:        Support for a set of FOUR specific buttons on the Tiva/Orbit.
- *                  ENCE361 sample code.
- *                  The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
- *                  LEFT and RIGHT on the Tiva.
- *
- * Note:            pin PF0 (the pin for the RIGHT pushbutton - SW2 on
- *                  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
+ * altitude: Reads the ADC and calculates the altitude as a percentage of maximum height. Also
+ *           contains support funcitons.
  *
  * Original Authors:        N. James
  *                          L. Trenberth
