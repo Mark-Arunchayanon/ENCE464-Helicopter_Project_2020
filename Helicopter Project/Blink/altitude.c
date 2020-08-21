@@ -10,7 +10,7 @@
  * Note:            pin PF0 (the pin for the RIGHT pushbutton - SW2 on
  *                  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
  *
- * Original Author:         N. James
+ * Original Authors:        N. James
  *                          L. Trenberth
  *                          M. Arunchayanon
  * Updated to FreeRTOS by:  G. Thiele
