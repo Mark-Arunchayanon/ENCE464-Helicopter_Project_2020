@@ -1,15 +1,24 @@
-//*****************************************************************************
-//
-// control - Includes PID control for the Altitude and Yaw, and 5 helicopter modes.
-//           Landed, Initialising, TakeOff, Flying and Landing
-//
-// Author:  N. James
-//          L. Trenberth
-//          M. Arunchayanon
-// Last modified:   31.5.2019
-//
-//*****************************************************************************
+/*************************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * control:         Includes PID control for the Altitude and Yaw, and 5 helicopter modes.
+ *                  Landed, Initialising, TakeOff, Flying and Landing
+ *
+ * Original Authors:       N. James
+ *                         L. Trenberth
+ *                         M. Arunchayanon
+ * Updated to FreeRTOS by: G. Thiele
+ *                         M. Arunchayanon
+ *                         S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ ************************************************************************************************/
 
+
+/*************************************************************************************************
+ * Includes
+ ************************************************************************************************/
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
@@ -41,6 +50,10 @@
 #include "uart.h"
 #include "timers.h"
 
+
+/***********************************************************************************************
+ * Constants/Definitions
+ **********************************************************************************************/
 #define ALT_REF_INIT        0    //Initial altitude reference
 #define ALT_STEP_RATE       10   //Altitude step rate
 #define ALT_MAX             100  //Maximum altitude
@@ -49,12 +62,10 @@
 #define YAW_REF_INIT        0    //Initial yaw reference
 #define YAW_STEP_RATE       15   //Yaw step rate
 
-// 0.3, 0.08, 1.0 @40 best gains found out____________________________________________ better 0.5 0.05 1.5 @20     0.5 0.05 1.5
-#define ALT_PROP_CONTROL    0.5 //Altitude PID control was 0.4
+#define ALT_PROP_CONTROL    0.5
 #define ALT_INT_CONTROL     0.05
 #define ALT_DIF_CONTROL     1.5
 
-//Yaw PID control YAAWWWWWWWWWWWWW_______________________________________________ 0.8 0.04 1.6 @20     0.4 0.04 1.0
 #define YAW_PROP_CONTROL    0.4
 #define YAW_INT_CONTROL     0.04
 #define YAW_DIF_CONTROL     1.0
@@ -102,8 +113,7 @@ SemaphoreHandle_t xYawMutex, xPIDMutex;
 typedef enum {Normal, SplatUp, SplatDown, Spin180Left, Spin180Right}specialMode;
 specialMode specialTrick = Normal;
 
-// *******************************************************
-// Declaring modes Landed, Initialising, TakeOff, Flying and Landing
+// Declaring modes: Landed, Initialising, TakeOff, Flying, Special and Landing
 typedef enum {Landed, Initialising, TakeOff, Flying, Special, Landing} mode_type;
 mode_type mode = Landed;  //Initial mode is landed
 
@@ -112,8 +122,7 @@ void YawRefIntHandler(void);
 
 void switchTimerExpire(TimerHandle_t pxTimer);
 
-// *******************************************************
-// initSwitch_PC4:      Initialises and sets up switch on PC4
+// Initialises and sets up switch on PC4
 void initSwitch_PC4(void)
 {
     // Initialise SW1
@@ -150,8 +159,7 @@ void initSwitch_PC4(void)
 
 }
 
-// *******************************************************
-// updateReset:         Reads the reset button, reset system if reset is pushed
+// Reads the reset button, reset system if reset is pushed
 void updateReset(void)
 {
     uint32_t reset = GPIOPinRead(GPIO_PORTA_BASE, GPIO_PIN_6);
@@ -162,9 +170,8 @@ void updateReset(void)
 }
 
 
-// *******************************************************
-// GetSwitchState:      Reads the switch, if the program starts with the switch on,
-//                      the helicopter will be paralysed (not be able to take of)
+// Reads the switch, if the program starts with the switch on,the helicopter will
+// be paralysed (not be able to take off)
 void GetSwitchState(void)
 {
     switchState = GPIOPinRead (GPIO_PORTA_BASE, GPIO_PIN_7) / 128;
@@ -187,8 +194,7 @@ void GetSwitchState(void)
 }
 
 
-// *******************************************************
-// checkStability:      Checks if the helicopter has taken off, sets stable to true
+// Checks if the helicopter has taken off, sets stable to true
 void checkStability(void)
 {
     if(getAlt() >= 30) {
@@ -197,6 +203,7 @@ void checkStability(void)
 }
 
 
+// Clamps a value between a minimum and a maximum.
 int32_t clamp(int32_t x, int32_t min, int32_t max)
 {
     int32_t value = x;
@@ -209,18 +216,14 @@ int32_t clamp(int32_t x, int32_t min, int32_t max)
     return value;
 }
 
-// *******************************************************
-// setAltRef:           Sets the altitude reference
-// TAKES:               New altitude reference as a percentage
+// Sets the altitude reference
 void setAltRef(int32_t newAltRef)
 {
     Alt.Ref = clamp(newAltRef, 0, 100);
 }
 
 
-// *******************************************************
-// setYawRef:           Sets the yaw reference
-// TAKES:               newYawRef, the new yaw reference as a percentage
+// Sets the yaw reference
 void setYawRef(int32_t newYawRef)
 {
     if(newYawRef == 0)
@@ -239,27 +242,21 @@ void setYawRef(int32_t newYawRef)
 }
 
 
-// *******************************************************
-// GetAltRef:           Returns the current reference for the altitude
-// RETURNS:             Altitude Reference as a int32_t
+// Returns the current reference for the altitude
 int32_t GetAltRef(void)
 {
     return Alt.Ref;
 }
 
 
-// *******************************************************
-// GetYawRef:           Returns the current reference for the yaw
-// RETURNS:             Yaw Reference as a int32_t
+// Returns the current reference for the yaw
 int32_t GetYawRef(void)
 {
     return Yaw.Ref;
 }
 
 
-// *******************************************************
-// take_Off:            Checks if yaw is zero.
-//                      If this is true, sets Altitude Reference to 50%
+// Checks if yaw is zero. If this is true, sets Altitude Reference to 50%
 void take_Off(void)
 {
     int32_t yaw;
@@ -277,6 +274,7 @@ void take_Off(void)
 }
 
 
+// Controls when the tricks run.
 void specialButtonMode(void)
 {
     Yaw.Val = getYawTotal();
@@ -302,6 +300,8 @@ void specialButtonMode(void)
     }
 }
 
+
+// Makes the helicopter spiral upwards or downwards.
 void spiralTrick(void)
 {
     if(specialTrick == SplatUp)
@@ -334,7 +334,7 @@ void spiralTrick(void)
 }
 
 
-// Here I switched around the + and - on Left and Right to match in IRL. Right now, spint right goes out of control, yaw keeps going doesnt stop
+// Spins the helicopter left or right 180 degrees.
 void spinTrick(void)
 {
     if(specialTrick == Spin180Left)
@@ -351,13 +351,6 @@ void spinTrick(void)
             specialTrick = Normal;
         }
 
-//        if(GetYawRef() != error)
-//        {
-//            setYawRef(Yaw.Val - 15);
-//        } else {
-//            spinSetUp = false;
-//            specialTrick = Normal;
-//        }
     } else if(specialTrick == Spin180Right)
     {
         Yaw.Val = getYawTotal();
@@ -372,35 +365,8 @@ void spinTrick(void)
             specialTrick = Normal;
         }
 
-//        if(GetYawRef() != error)
-//        {
-//            setYawRef(Yaw.Val + 15);
-//        } else {
-//            spinSetUp = false;
-//            specialTrick = Normal;
-//        }
-    }
-}
-// *******************************************************
-// findYawRef:          Turns on main and tail motor. Spins the helicopter clockwise
-//                      and  reads PC4 to check if the helicopter is at the reference
-//                      Once the reference is found, resets yaw reference to 0 and current yaw to 0
-//void findYawRef(void)
-//{
-//
-//    if(xDisplayMutex != NULL)
-//    {
-//        xSemaphoreTake(xDisplayMutex, portMAX_DELAY);
-//        Yaw.Val = getYaw();
-//        xSemaphoreGive(xDisplayMutex);
-//    }
-//
-//    if(ref_Found == false)
-//    {
-//        setYawRef(Yaw.Val - YAW_STEP_RATE);
-//    }
-//}
 
+// Detects the reference position and resets the reference to 0 when it has been detected.
 void YawRefIntHandler(void)
 {
     GPIOIntClear(GPIO_PORTC_BASE, GPIO_PIN_4);
@@ -413,10 +379,9 @@ void YawRefIntHandler(void)
     }
 }
 
-// *******************************************************
-// landing:             Once yaw is within 5 degrees of 0,
-//                      decrease altitude by 5% if over 10%
-//                      If altitude is under 10%, shut off motors
+// Once yaw is within 10 degrees of 0, begin to decrease the reference altitude. If yaw is
+// outside this range, go to 30% altitude until the yaw stabilises. If altitude is
+// under 10%, shut off motors
 void landing(void)
 {
 
@@ -454,9 +419,8 @@ void landing(void)
 }
 
 
-// *******************************************************
-//  PIDControlYaw:      Uses PID control during TakeOff, Flying and Landing modes
-//                      Ensures the yaw follows the yaw reference
+// Uses PID control during TakeOff, Flying, Special and Landing modes.
+// Ensures the yaw follows the yaw reference
 void PIDControlYaw(void)
 {
     if((mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing))
@@ -470,7 +434,6 @@ void PIDControlYaw(void)
                 Yaw.Val = getYaw();
                 xSemaphoreGive(xDisplayMutex);
             }
-//            Yaw.Val = getYaw();
 
         } else {
             Yaw.Val = getYawTotal();
@@ -494,9 +457,8 @@ void PIDControlYaw(void)
 }
 
 
-// *******************************************************
-// PIDControlAlt:       Uses PID control during TakeOff, Flying and Landing modes
-//                      Ensures the altitude follows the altitude reference
+// Uses PID control during TakeOff, Flying, Special and Landing modes.
+// Ensures the altitude follows the altitude reference
 void PIDControlAlt(void)
 {
     if ((mode == TakeOff) || (mode == Flying) || (mode == Special) || (mode == Landing)) {
@@ -520,27 +482,21 @@ void PIDControlAlt(void)
 }
 
 
-// *******************************************************
-// getMainDuty:         Returns main rotor duty cycle
-// RETURNS:             The main duty cycle as a uint32_t
+// Returns main rotor duty cycle
 uint32_t getMainDuty(void)
 {
     return Alt.Duty;
 }
 
 
-// *******************************************************
-// getTailDuty:         Returns tail duty cycle
-// RETURNS:             The tail rotor duty cycle as a uint32_t
+// Returns tail duty cycle
 uint32_t getTailDuty(void)
 {
     return Yaw.Duty;
 }
 
 
-// *******************************************************
-// getMode:             Finds the current mode of the helicopter
-// RETURNS:             A char* containing the current mode
+// Finds the current mode of the helicopter
 char* getMode(void)
 {
     switch(mode)
@@ -557,8 +513,7 @@ char* getMode(void)
 }
 
 
-// *******************************************************
-// resetIntControl:     Reset all error and integral error to 0
+// Reset all error and integral error to 0
 void resetIntControl(void)
 {
     Alt.Err = 0;
@@ -570,11 +525,7 @@ void resetIntControl(void)
 }
 
 
-// *******************************************************
-// RefUpdate:           Only runs when the helicopter is in flying mode
-//                      Checks button status and changes reference altitudes and yaws
-//                      UP and DOWN are used to increase/decrease altitude reference
-//                      LEFT and RIGHT are used to increase/decrease yaw reference
+// Checks button status and changes reference altitudes and yaws
 void RefUpdate(void)
 {
     int32_t alt = GetAltRef();
@@ -600,8 +551,7 @@ void RefUpdate(void)
 }
 
 
-// *******************************************************
-// helicopterStates:    Switches mode between the 5 modes
+// Switches mode between the 6 modes
 void helicopterStates(void){
 
     switch(mode) {
@@ -621,7 +571,6 @@ void helicopterStates(void){
 
     case Initialising:
 
-//        findYawRef();                          //Spins clockwise until the reference point is found
         if(ref_Found) {
             mode = TakeOff;
             ref_Found = false;//Change mode to takeoff once the reference point is found
@@ -660,15 +609,13 @@ void helicopterStates(void){
 }
 
 
+// A task scheduled by FreeRTOS to update the controls. Updates the PID controllers, gets the
+// switch position and updates the state machine. Has a task priority of 4.
 void vControlTask (void *pvParameters)
 {
-//    TickType_t xDelay10s = pdMS_TO_TICKS(10);
-//    TickType_t xLastWakeTime;
-//    xLastWakeTime = xTaskGetTickCount();
 
     for ( ;; )
     {
-//        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
 
 
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
