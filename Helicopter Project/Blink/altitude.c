@@ -49,7 +49,7 @@
 /***********************************************************************************************
  * Constants/Definitions
  **********************************************************************************************/
-#define RANGE_ALTITUDE      (1000*4095/3300)
+#define RANGE_ALTITUDE      ((1000*4095)/3300)
 #define BUF_SIZE            10
 #define TASK_STACK_DEPTH    50
 #define QUEUE_ITEM_SIZE     15
@@ -65,7 +65,7 @@ uint32_t ulValue;
 int calibrate_flag=  0;
 int calibrate_counter = 0;
 static int32_t meanVal = 0;
-static int32_t percentAlt;
+int32_t percentAlt,testVal;
 
 QueueHandle_t xADCQueue = NULL;     // Queue for ADC sample from pin to calculationSemaphoreHandle_t xADCCalibrationMutex;    // Mutex declaration
 
@@ -167,8 +167,8 @@ void vADCSampleTask(void *pvParameters)
 void vADCTask(void *pvParameters)
 {
     TaskHandle_t xPIDTask = pvParameters;
-    TickType_t xLastWakeTime;
-    xLastWakeTime = xTaskGetTickCount();
+//    TickType_t xLastWakeTime;
+//    xLastWakeTime = xTaskGetTickCount();
     const TickType_t xDelay30s = pdMS_TO_TICKS(30);
     BaseType_t xReceive = pdFALSE;
     uint32_t ADCSamples[QUEUE_SIZE];
@@ -176,7 +176,6 @@ void vADCTask(void *pvParameters)
 
     for ( ;; )
     {
-        vTaskDelayUntil(&xLastWakeTime, xDelay30s);
 
         xReceive = xQueueReceive(xADCQueue, &ADCSamples[i], portMAX_DELAY); //Read from queue;
         if (xReceive == pdTRUE) // If value recieved
@@ -187,13 +186,25 @@ void vADCTask(void *pvParameters)
             if (i % MOVING_AVERAGE == 0)
             {
                 int offset = ((((i /MOVING_AVERAGE) - 1) *MOVING_AVERAGE + QUEUE_SIZE) % QUEUE_SIZE);
-                int sum = 0;
+                int32_t sum = 0;
                 for (j = 0; j < MOVING_AVERAGE; ++j)
                 {
                     sum += ADCSamples[offset + j];
                 }
                 meanVal = sum / 5;
-                percentAlt = 100 *((refAltitude - meanVal )/ RANGE_ALTITUDE);
+                percentAlt = (int32_t)((330 * (float)((float)refAltitude - (float)meanVal))) >> 12;
+
+                // clamp between 0 and 100
+                if (percentAlt < 0)
+                {
+                    percentAlt = 0;
+                }
+                if (percentAlt > 100)
+                {
+                    percentAlt = 100;
+                }
+
+//                percentAlt = 100 *((testVal ));
                 xTaskNotifyGive(xPIDTask);  // Notifies PID task that Altitude updated.
             }
         }
@@ -208,6 +219,9 @@ void vADCTask(void *pvParameters)
             }
             calibrate_counter++;
         }
+
+        vTaskDelay(xDelay30s);
+
     }
 }
 

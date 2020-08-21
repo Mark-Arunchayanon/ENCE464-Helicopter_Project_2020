@@ -309,12 +309,12 @@ IntDefaultHandler(void)
 }
 
 
-void vApplicationStackOverflowHook( TaskHandle_t xTask,
-                                    signed char *pcTaskName )
-{
-  UARTSend("OVERFLOW\r\n");
-  UARTSend((char*)pcTaskName);
-    while (1) {
-    ;
-  }
-}
+//void vApplicationStackOverflowHook( TaskHandle_t xTask,
+//                                    signed char *pcTaskName )
+//{
+//  UARTSend("OVERFLOW\r\n");
+//  UARTSend((char*)pcTaskName);
+//    while (1) {
+//    ;
+//  }
+//}

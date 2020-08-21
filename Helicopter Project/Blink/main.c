@@ -59,7 +59,7 @@
 #define DISPLAY_TASK_STACK_DEPTH    1024
 
 // Task priority levels, higher numbers will be executed first.
-#define BUTTON_TASK_PRIORITY        3
+#define BUTTON_TASK_PRIORITY        4
 #define CONTROL_TASK_PRIORITY       4
 #define ADCSAMPLE_TASK_PRIORITY     2
 #define ADC_TASK_PRIORITY           2

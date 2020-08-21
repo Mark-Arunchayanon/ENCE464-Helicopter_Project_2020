@@ -36,6 +36,7 @@
 #include "stdlib.h"
 #include "OrbitOLED/OrbitOLEDInterface.h"
 #include "motor.h"
+#include "control.h"
 
 #include "FreeRTOS.h"
 #include "semphr.h"
@@ -83,15 +84,15 @@
 #define PWM_SEC_START_DUTY      0
 #define PWM_MAIN_START_DUTY     0
 
+int32_t ui32Period;
+
 
 // Function to set the freq, duty cycle of M0PWM7
-void SetMainPWM(uint32_t ui32Duty)
+void SetMainPWM(int32_t ui32Duty)
 {
+    ui32Duty = clamp(ui32Duty, 10, 90);
     mainPWM = ui32Duty;
     // Calculate the PWM period corresponding to the freq.
-    uint32_t ui32Period = SysCtlClockGet() / PWM_DIVIDER / PWM_RATE_HZ;
-
-    PWMGenPeriodSet(PWM_MAIN_BASE, PWM_MAIN_GEN, ui32Period);
     PWMPulseWidthSet(PWM_MAIN_BASE, PWM_MAIN_OUTNUM, ui32Period * ui32Duty / 100);
 }
 
@@ -114,18 +115,20 @@ void initialiseMainPWM(void)
     PWMGenEnable(PWM_MAIN_BASE, PWM_MAIN_GEN);
 
     // Disable the output.  Repeat this call with 'true' to turn O/P on.
+    PWMGenPeriodSet(PWM_MAIN_BASE, PWM_MAIN_GEN, ui32Period);
+    PWMPulseWidthSet(PWM_MAIN_BASE, PWM_MAIN_OUTNUM, 0);
     PWMOutputState(PWM_MAIN_BASE, PWM_MAIN_OUTBIT, false);
 }
 
 
 // Function to set the freq, duty cycle of M1PWM5
-void SetTailPWM(uint32_t ui32Duty)
+void SetTailPWM(int32_t ui32Duty)
 {
+    ui32Duty = clamp(ui32Duty, 10, 90);
     tailPWM = ui32Duty;
     // Calculate the PWM period corresponding to the freq.
-    uint32_t ui32Period = SysCtlClockGet() / PWM_DIVIDER / PWM_RATE_HZ;
+//    int32_t ui32Period = SysCtlClockGet() / PWM_DIVIDER / PWM_RATE_HZ;
 
-    PWMGenPeriodSet(PWM_SEC_BASE, PWM_SEC_GEN, ui32Period);
     PWMPulseWidthSet(PWM_SEC_BASE, PWM_SEC_OUTNUM, ui32Period * ui32Duty / 100);
 }
 
@@ -149,6 +152,8 @@ void initialiseTailPWM(void)
     PWMGenEnable(PWM_SEC_BASE, PWM_SEC_GEN);
 
     // Disable the output.  Repeat this call with 'true' to turn O/P on.
+    PWMGenPeriodSet(PWM_SEC_BASE, PWM_SEC_GEN, ui32Period);
+    PWMPulseWidthSet(PWM_SEC_BASE, PWM_SEC_OUTNUM, 0);
     PWMOutputState(PWM_SEC_BASE, PWM_SEC_OUTBIT, false);
 }
 
@@ -184,6 +189,9 @@ void initmotor(void)
     resetmotor();
 
     SysCtlPWMClockSet(PWM_DIVIDER_CODE);
+
+    ui32Period = SysCtlClockGet() / PWM_DIVIDER / PWM_RATE_HZ;
+
     initialiseMainPWM();
     initialiseTailPWM();
 

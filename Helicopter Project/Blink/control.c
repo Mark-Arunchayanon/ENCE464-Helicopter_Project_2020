@@ -487,7 +487,6 @@ void PIDControlYaw(void)
                     + TAIL_OFFSET;
 
 
-        Yaw.Control = clamp(Yaw.Control, 5, 90);
         SetTailPWM(Yaw.Control);  //Sets the tail duty cycle
         Yaw.PrvErr = Yaw.Err;
         Yaw.Duty = Yaw.Control;
@@ -507,24 +506,6 @@ void PIDControlAlt(void)
         Alt.Ierr += Alt.Err * DELTA_T;  //Integral error
         Alt.Derr = (Alt.Err - Alt.PrvErr) * 100;  //Derivative error
 
-//        if(xPIDMutex != NULL)
-//            {
-//                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
-//                AltControl = clamp(Alt_error * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
-//                                    + Alt.Ierr * ALT_INT_CONTROL
-//                                    + clamp(Alt.Derr * ALT_DIF_CONTROL, -40, 60)
-//                                    + MAIN_OFFSET;
-//
-//                AltControl = clamp(AltControl, 10, 90);
-//                xSemaphoreGive(xPIDMutex);
-//            }
-//
-//        if(xPIDMutex != NULL)
-//            {
-//                xSemaphoreTake(xPIDMutex, portMAX_DELAY);
-//                SetMainPWM(Alt.Control);  //Sets the main duty cycle
-//                xSemaphoreGive(xPIDMutex);
-//            }
 
         Alt.Control = clamp(Alt.Err * ALT_PROP_CONTROL, -20, 30)  //Altitude control based on the PID terms
                             + Alt.Ierr * ALT_INT_CONTROL
@@ -533,7 +514,6 @@ void PIDControlAlt(void)
 
         SetMainPWM(Alt.Control);  //Sets the main duty cycle
 
-        Alt.Control = clamp(Alt.Control, 10, 90);
         Alt.PrvErr = Alt.Err;
         Alt.Duty = Alt.Control;
     }
@@ -690,8 +670,6 @@ void vControlTask (void *pvParameters)
     {
 //        vTaskDelayUntil(&xLastWakeTime, xDelay10s);
 
-        Alt.Ref = ALT_REF_INIT;
-        Yaw.Ref = YAW_REF_INIT;
 
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 

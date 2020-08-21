@@ -124,11 +124,11 @@ void vDisplayTask (void *pvParameters)
 
 
 
-        static char runtime_stats_buffer[512] = { 0 };
-
-        vTaskGetRunTimeStats(runtime_stats_buffer);
-
-        UARTSend(runtime_stats_buffer);
+//        static char runtime_stats_buffer[512] = { 0 };
+//
+//        vTaskGetRunTimeStats(runtime_stats_buffer);
+//
+//        UARTSend(runtime_stats_buffer);
 
         vTaskDelay(xDelay1s);
     }
