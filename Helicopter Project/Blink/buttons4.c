@@ -40,33 +40,6 @@
 
 
 /***********************************************************************************************
- * Constants/Definitions
- **********************************************************************************************/
-// UP button
-#define UP_BUT_PERIPH  SYSCTL_PERIPH_GPIOE
-#define UP_BUT_PORT_BASE  GPIO_PORTE_BASE
-#define UP_BUT_PIN  GPIO_PIN_0
-#define UP_BUT_NORMAL  false
-// DOWN button
-#define DOWN_BUT_PERIPH  SYSCTL_PERIPH_GPIOD
-#define DOWN_BUT_PORT_BASE  GPIO_PORTD_BASE
-#define DOWN_BUT_PIN  GPIO_PIN_2
-#define DOWN_BUT_NORMAL  false
-// LEFT button
-#define LEFT_BUT_PERIPH  SYSCTL_PERIPH_GPIOF
-#define LEFT_BUT_PORT_BASE  GPIO_PORTF_BASE
-#define LEFT_BUT_PIN  GPIO_PIN_4
-#define LEFT_BUT_NORMAL  true
-// RIGHT button
-#define RIGHT_BUT_PERIPH  SYSCTL_PERIPH_GPIOF
-#define RIGHT_BUT_PORT_BASE  GPIO_PORTF_BASE
-#define RIGHT_BUT_PIN  GPIO_PIN_0
-#define RIGHT_BUT_NORMAL  true
-
-#define NUM_BUT_POLLS 3 //
-
-
-/***********************************************************************************************
  * Global Variables
  **********************************************************************************************/
 static bool but_state[NUM_BUTS];    // Corresponds to the electrical state
@@ -85,24 +58,21 @@ void initButtons (void)
     SysCtlPeripheralEnable (UP_BUT_PERIPH);
     while(!SysCtlPeripheralReady(UP_BUT_PERIPH));
     GPIOPinTypeGPIOInput (UP_BUT_PORT_BASE, UP_BUT_PIN);
-    GPIOPadConfigSet (UP_BUT_PORT_BASE, UP_BUT_PIN, GPIO_STRENGTH_2MA,
-       GPIO_PIN_TYPE_STD_WPD);
+    GPIOPadConfigSet (UP_BUT_PORT_BASE, UP_BUT_PIN, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
     but_normal[UP] = UP_BUT_NORMAL;
 
     // DOWN button (active HIGH)
     SysCtlPeripheralEnable (DOWN_BUT_PERIPH);
     while(!SysCtlPeripheralReady(DOWN_BUT_PERIPH));
     GPIOPinTypeGPIOInput (DOWN_BUT_PORT_BASE, DOWN_BUT_PIN);
-    GPIOPadConfigSet (DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, GPIO_STRENGTH_2MA,
-       GPIO_PIN_TYPE_STD_WPD);
+    GPIOPadConfigSet (DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPD);
     but_normal[DOWN] = DOWN_BUT_NORMAL;
 
     // LEFT button (active LOW)
     SysCtlPeripheralEnable (LEFT_BUT_PERIPH);
     while(!SysCtlPeripheralReady(LEFT_BUT_PERIPH));
     GPIOPinTypeGPIOInput (LEFT_BUT_PORT_BASE, LEFT_BUT_PIN);
-    GPIOPadConfigSet (LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, GPIO_STRENGTH_2MA,
-       GPIO_PIN_TYPE_STD_WPU);
+    GPIOPadConfigSet (LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
     but_normal[LEFT] = LEFT_BUT_NORMAL;
 
     // RIGHT button (active LOW)
@@ -116,8 +86,7 @@ void initButtons (void)
     GPIO_PORTF_CR_R |= GPIO_PIN_0; //PF0 unlocked
     GPIO_PORTF_LOCK_R = GPIO_LOCK_M;
     GPIOPinTypeGPIOInput (RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN);
-    GPIOPadConfigSet (RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, GPIO_STRENGTH_2MA,
-       GPIO_PIN_TYPE_STD_WPU);
+    GPIOPadConfigSet (RIGHT_BUT_PORT_BASE, RIGHT_BUT_PIN, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
     but_normal[RIGHT] = RIGHT_BUT_NORMAL;
 
     for (i = 0; i < NUM_BUTS; i++)
