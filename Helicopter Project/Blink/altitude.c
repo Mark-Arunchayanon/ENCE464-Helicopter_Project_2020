@@ -60,7 +60,7 @@
 /***********************************************************************************************
  * Global Variables
  **********************************************************************************************/
-static uint32_t refAltitude = 0;
+static int32_t refAltitude = 1000;
 uint32_t ulValue;
 int calibrate_flag=  0;
 int calibrate_counter = 0;
@@ -187,12 +187,12 @@ void vADCTask(void *pvParameters)
             {
                 int offset = ((((i /MOVING_AVERAGE) - 1) *MOVING_AVERAGE + QUEUE_SIZE) % QUEUE_SIZE);
                 int sum = 0;
-                for (j = 0; j<MOVING_AVERAGE; ++j)
+                for (j = 0; j < MOVING_AVERAGE; ++j)
                 {
                     sum += ADCSamples[offset + j];
                 }
                 meanVal = sum / 5;
-                percentAlt = 100 *(refAltitude -meanVal / RANGE_ALTITUDE);
+                percentAlt = 100 *((refAltitude - meanVal )/ RANGE_ALTITUDE);
                 xTaskNotifyGive(xPIDTask);  // Notifies PID task that Altitude updated.
             }
         }

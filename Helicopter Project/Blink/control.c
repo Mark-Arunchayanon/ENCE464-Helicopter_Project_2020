@@ -397,7 +397,7 @@ void findYawRef(void)
 
     if(ref_Found == false)
     {
-        setYawRef(Yaw.Val + YAW_STEP_RATE);
+        setYawRef(Yaw.Val - YAW_STEP_RATE);
     }
 }
 
@@ -631,7 +631,8 @@ void helicopterStates(void){
             resetIntControl();                 //Reset any previous error terms
 
             //Sets initial power percentages
-            setAltRef(10);
+//            setAltRef(10);
+            SetMainPWM(0);
 
         }
         break;
