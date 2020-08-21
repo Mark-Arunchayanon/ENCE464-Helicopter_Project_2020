@@ -364,7 +364,8 @@ void spinTrick(void)
             spinSetUp = false;
             specialTrick = Normal;
         }
-
+    }
+}
 
 // Detects the reference position and resets the reference to 0 when it has been detected.
 void YawRefIntHandler(void)
