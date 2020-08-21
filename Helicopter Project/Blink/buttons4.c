@@ -1,4 +1,4 @@
-/***************************************************************************************
+/*************************************************************************************************
  *
  * ENCE464 FreeRTOS Helicopter Rig Controller Project
  *
@@ -16,13 +16,12 @@
  *                         S. Goonatillake
  * Last modified:  21.08.2020
  *
- ***************************************************************************************
- */
+ ************************************************************************************************/
+
 
 /*************************************************************************************************
  * Includes
  ************************************************************************************************/
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -39,16 +38,45 @@
 #include "task.h"
 #include "uart.h"
 
-// *******************************************************
-// Globals to module
+
+/***********************************************************************************************
+ * Constants/Definitions
+ **********************************************************************************************/
+// UP button
+#define UP_BUT_PERIPH  SYSCTL_PERIPH_GPIOE
+#define UP_BUT_PORT_BASE  GPIO_PORTE_BASE
+#define UP_BUT_PIN  GPIO_PIN_0
+#define UP_BUT_NORMAL  false
+// DOWN button
+#define DOWN_BUT_PERIPH  SYSCTL_PERIPH_GPIOD
+#define DOWN_BUT_PORT_BASE  GPIO_PORTD_BASE
+#define DOWN_BUT_PIN  GPIO_PIN_2
+#define DOWN_BUT_NORMAL  false
+// LEFT button
+#define LEFT_BUT_PERIPH  SYSCTL_PERIPH_GPIOF
+#define LEFT_BUT_PORT_BASE  GPIO_PORTF_BASE
+#define LEFT_BUT_PIN  GPIO_PIN_4
+#define LEFT_BUT_NORMAL  true
+// RIGHT button
+#define RIGHT_BUT_PERIPH  SYSCTL_PERIPH_GPIOF
+#define RIGHT_BUT_PORT_BASE  GPIO_PORTF_BASE
+#define RIGHT_BUT_PIN  GPIO_PIN_0
+#define RIGHT_BUT_NORMAL  true
+
+#define NUM_BUT_POLLS 3 //
+
+
+/***********************************************************************************************
+ * Global Variables
+ **********************************************************************************************/
 static bool but_state[NUM_BUTS];    // Corresponds to the electrical state
 static uint8_t but_count[NUM_BUTS];
 static bool but_flag[NUM_BUTS];
 static bool but_normal[NUM_BUTS];   // Corresponds to the electrical state
 
-// *******************************************************
-// initButtons:     Initialise the variables associated with the set of buttons
-//                  defined by the constants in the buttons2.h header file.
+
+// Initialise the variables associated with the set of buttons defined by the constants
+// in the buttons2.h header file.
 void initButtons (void)
 {
     int i;
@@ -60,6 +88,7 @@ void initButtons (void)
     GPIOPadConfigSet (UP_BUT_PORT_BASE, UP_BUT_PIN, GPIO_STRENGTH_2MA,
        GPIO_PIN_TYPE_STD_WPD);
     but_normal[UP] = UP_BUT_NORMAL;
+
     // DOWN button (active HIGH)
     SysCtlPeripheralEnable (DOWN_BUT_PERIPH);
     while(!SysCtlPeripheralReady(DOWN_BUT_PERIPH));
@@ -67,6 +96,7 @@ void initButtons (void)
     GPIOPadConfigSet (DOWN_BUT_PORT_BASE, DOWN_BUT_PIN, GPIO_STRENGTH_2MA,
        GPIO_PIN_TYPE_STD_WPD);
     but_normal[DOWN] = DOWN_BUT_NORMAL;
+
     // LEFT button (active LOW)
     SysCtlPeripheralEnable (LEFT_BUT_PERIPH);
     while(!SysCtlPeripheralReady(LEFT_BUT_PERIPH));
@@ -74,6 +104,7 @@ void initButtons (void)
     GPIOPadConfigSet (LEFT_BUT_PORT_BASE, LEFT_BUT_PIN, GPIO_STRENGTH_2MA,
        GPIO_PIN_TYPE_STD_WPU);
     but_normal[LEFT] = LEFT_BUT_NORMAL;
+
     // RIGHT button (active LOW)
       // Note that PF0 is one of a handful of GPIO pins that need to be
       // "unlocked" before they can be reconfigured.  This also requires
@@ -97,15 +128,10 @@ void initButtons (void)
     }
 }
 
-// *******************************************************
-// updateButtons:   Function designed to be called regularly. It polls all
-//                  buttons once and updates variables associated with the buttons if
-//                  necessary.  It is efficient enough to be part of an ISR, e.g. from
-//                  a SysTick interrupt.
-//                  Debounce algorithm: A state machine is associated with each button.
-//                  A state change occurs only after NUM_BUT_POLLS consecutive polls have
-//                  read the pin in the opposite condition, before the state changes and
-//                  a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
+
+// Polls all buttons once and updates variables associated with the buttons. A debouncing
+// algorithm will only consider an update in button state once NUM_BUT_POLLS consecutive
+// polls have been read.
 void updateButtons (void)
 {
     bool but_value[NUM_BUTS];
@@ -134,10 +160,9 @@ void updateButtons (void)
     }
 }
 
-// *******************************************************
-// checkButton:     Function returns the new button logical state if the button
-//                  logical state (PUSHED or RELEASED) has changed since the last call,
-//                  otherwise returns NO_CHANGE.
+
+// Function returns the new button logical state if the button logical state
+// (PUSHED or RELEASED) has changed since the last call, otherwise returns NO_CHANGE.
 uint8_t checkButton (uint8_t butName)
 {
     if (but_flag[butName])
@@ -151,10 +176,9 @@ uint8_t checkButton (uint8_t butName)
     return NO_CHANGE;
 }
 
-// *******************************************************
-// vButtonTask:     A task scheduled by FreeRTOS to manage button presses.
-//                  Regularly polls the buttons and updates the associated variables.
-//                  Has a task priority of 3.
+
+// A task scheduled by FreeRTOS to manage button presses. Regularly polls the buttons
+// and updates the associated variables. Has a task priority of 3.
 void vButtonTask (void *pvParameters)
 {
     const TickType_t xDelay1s = pdMS_TO_TICKS(10);
@@ -166,3 +190,4 @@ void vButtonTask (void *pvParameters)
         vTaskDelay(xDelay1s);
     }
 }
+
