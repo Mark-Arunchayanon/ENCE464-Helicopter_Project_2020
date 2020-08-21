@@ -1,25 +1,34 @@
 #ifndef BUTTONS_H_
 #define BUTTONS_H_
 
-// *******************************************************
-// buttons4.h
-//
-// Support for a set of FOUR specific buttons on the Tiva/Orbit.
-// ENCE361 sample code.
-// The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
-// LEFT and RIGHT on the Tiva.
-//
-// P.J. Bones UCECE
-// Last modified:  7.2.2018
-// 
-// *******************************************************
+/***************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * buttons4:        Support for a set of FOUR specific buttons on the Tiva/Orbit.
+ *                  ENCE361 sample code.
+ *                  The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
+ *                  LEFT and RIGHT on the Tiva.
+ *
+ * Note:             pin PF0 (the pin for the RIGHT pushbutton - SW2 on
+ *                   the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
+ *
+ * Original Author:        P.J. Bones UCECE
+ * Updated to FreeRTOS by: G. Thiele
+ *                         M. Arunchayanon
+ *                         S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ ***************************************************************************************
+ */
 
 #include <stdint.h>
 #include <stdbool.h>
 
-//*****************************************************************************
-// Constants
-//*****************************************************************************
+/*************************************************************************************************
+ * Constants
+ ************************************************************************************************/
+
 enum butNames {UP = 0, DOWN, LEFT, RIGHT, NUM_BUTS};
 enum butStates {RELEASED = 0, PUSHED, NO_CHANGE};
 // UP button
@@ -44,6 +53,8 @@ enum butStates {RELEASED = 0, PUSHED, NO_CHANGE};
 #define RIGHT_BUT_NORMAL  true
 
 #define NUM_BUT_POLLS 3
+
+// *******************************************************
 // Debounce algorithm:  A state machine is associated with each button.
 //                      A state change occurs only after NUM_BUT_POLLS consecutive polls have
 //                      read the pin in the opposite condition, before the state changes and
@@ -71,6 +82,10 @@ updateButtons (void);
 uint8_t
 checkButton (uint8_t butName);
 
+// *******************************************************
+// vButtonTask:     A task scheduled by FreeRTOS to manage button presses.
+//                  Regularly polls the buttons and updates the associated variables.
+//                  Has a task priority of 3.
 void
 vButtonTask (void *pvParameters);
 
