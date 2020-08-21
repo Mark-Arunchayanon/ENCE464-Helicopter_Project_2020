@@ -2,7 +2,8 @@
  *
  * ENCE464 FreeRTOS Helicopter Rig Controller Project
  *
- * altitude: Reads the ADC and calculates t
+ * altitude: Reads the ADC and calculates the altitude as a percentage of maximum height. Also
+ *           contains support funcitons.
  *
  * Original Authors:        N. James
  *                          L. Trenberth
@@ -59,17 +60,17 @@
 /***********************************************************************************************
  * Global Variables
  **********************************************************************************************/
-static uint32_t refAltitude = 0;       //Reference Altitud???????????????????????????????????????????????????????????????????????????????e
+static uint32_t refAltitude = 0;
 uint32_t ulValue;
 int calibrate_flag=  0;
 int calibrate_counter = 0;
 static int32_t meanVal = 0;
 static int32_t percentAlt;
 
-QueueHandle_t xADCQueue = NULL;     // Queue for ADC sample from pin to calculation;SemaphoreHandle_t xADCCalibrationMutex;    // Mutex declaration;
+QueueHandle_t xADCQueue = NULL;     // Queue for ADC sample from pin to calculationSemaphoreHandle_t xADCCalibrationMutex;    // Mutex declaration
 
 
-// Configures and enables the ADC peripherals and software declarations./
+// Configures and enables the ADC peripherals and software declarations.
 void initADC (void)
 {
     char statusStr[MAX_STR_LEN + 1];
