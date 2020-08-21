@@ -24,6 +24,15 @@
 
 
 /***********************************************************************************************
+ * initADC: Configures and enables the ADC peripherals and software declarations.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void initADC (void);
+
+
+/***********************************************************************************************
  * ADCIntHandler: The handler for the ADC conversion complete interrupt.
  *                Writes to the ADC queue.
  *
@@ -31,15 +40,6 @@
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 void ADCIntHandler(void);
-
-
-/***********************************************************************************************
- * initADC: Configures and enables the ADC peripherals and software declarations.
- *
- * Authors: M Arunchyanon, S. Goonatillake
- * Last Modified: 21.08.2020
- **********************************************************************************************/
-void initADC (void);
 
 
 /***********************************************************************************************
@@ -61,15 +61,6 @@ void resetAltitude(void);
 
 
 /***********************************************************************************************
- * percentAltitude: Converts the ADC sample into a readable percentage altitude.
- *
- * Authors: M Arunchyanon, Sasiru Goonatillake
- * Last Modified: 21.08.2020
- **********************************************************************************************/
-int32_t percentAltitude(void);
-
-
-/***********************************************************************************************
  * vADCSampleTask: Scheduled task that polls the ADC interrupt at minium 30Hz ??????????????????????????????????????????????????????????????????????????????
  *
  * Authors: M Arunchyanon, S. Goonatillake
@@ -86,5 +77,6 @@ void vADCSampleTask(void *pvParameters);
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 void vADCTask(void *pvParameters);
+
 
 #endif /*ALTITUDE_H_*/

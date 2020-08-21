@@ -2,13 +2,7 @@
  *
  * ENCE464 FreeRTOS Helicopter Rig Controller Project
  *
- * altitude:        Support for a set of FOUR specific buttons on the Tiva/Orbit.
- *                  ENCE361 sample code.
- *                  The buttons are:  UP and DOWN (on the Orbit daughterboard) plus
- *                  LEFT and RIGHT on the Tiva.
- *
- * Note:            pin PF0 (the pin for the RIGHT pushbutton - SW2 on
- *                  the Tiva board) needs special treatment - See PhilsNotesOnTiva.rtf.
+ * altitude: Reads the ADC and calculates t
  *
  * Original Authors:        N. James
  *                          L. Trenberth
@@ -19,6 +13,7 @@
  * Last modified:  21.08.2020
  *
  **********************************************************************************************/
+
 
 
 /***********************************************************************************************
@@ -64,35 +59,17 @@
 /***********************************************************************************************
  * Global Variables
  **********************************************************************************************/
-static uint32_t refAltitude = 1000;       //Reference Altitude???????????????????????????????????????????????????????????????????????????????
+static uint32_t refAltitude = 0;       //Reference Altitud???????????????????????????????????????????????????????????????????????????????e
 uint32_t ulValue;
-int calibrate_flag = 0;
+int calibrate_flag=  0;
 int calibrate_counter = 0;
-static int32_t meanVal =0;
+static int32_t meanVal = 0;
+static int32_t percentAlt;
+
+QueueHandle_t xADCQueue = NULL;     // Queue for ADC sample from pin to calculation;SemaphoreHandle_t xADCCalibrationMutex;    // Mutex declaration;
 
 
-QueueHandle_t xADCQueue = NULL;     // Queue for ADC sample from pin to calculation
-extern xSemaphoreHandle g_pADCSemaphore;    // Semaphore declaration
-
-
-// The handler for the ADC conversion complete interrupt. Writes to the ADC queue.
-void ADCIntHandler(void)
-{
-//    uint32_t ulValue;
-    // Get the single sample from ADC0.  ADC_BASE is defined in inc/hw_memmap.h
-    ADCSequenceDataGet(ADC0_BASE, 3, &ulValue);
-
-    // Place it in the circular buffer (advancing write index)
-    //writeCircBuf (&g_inBuffer, ulValue);
-
-    xQueueSendFromISR( xADCQueue, &ulValue, NULL);
-
-    // Clean up, clearing the interrupt
-    ADCIntClear(ADC0_BASE, 3);
-}
-
-
-// Configures and enables the ADC peripherals and software declarations.
+// Configures and enables the ADC peripherals and software declarations./
 void initADC (void)
 {
     char statusStr[MAX_STR_LEN + 1];
@@ -133,32 +110,40 @@ void initADC (void)
         usprintf (statusStr, "Could not create ADC queue");
         UARTSend (statusStr);
     }
+    // Create mutex for use while altitude is being reset
+//    xADCCalibrationMutex = xSemaphoreCreateMutex();
 }
 
 
-// Getter method which returns the altitude converted to percentage format
+// The handler for the ADC conversion complete interrupt. Writes to the ADC queue.
+void ADCIntHandler(void)
+{
+//    uint32_t ulValue;
+    // Get the single sample from ADC0.  ADC_BASE is defined in inc/hw_memmap.h
+    ADCSequenceDataGet(ADC0_BASE, 3, &ulValue);
+
+    // Place it in the circular buffer (advancing write index)
+    //writeCircBuf (&g_inBuffer, ulValue);
+
+    xQueueSendFromISR( xADCQueue, &ulValue, NULL);
+
+    // Clean up, clearing the interrupt
+    ADCIntClear(ADC0_BASE, 3);
+}
+
+// Getter method which returns the altitude converted to percentage format/
 int32_t getAlt (void)
 {
     return percentAlt;
 }
-
-// Resets the altitude reference to the most recently sampled ADC value.
+// Resets the altitude reference to the most recently sampled ADC value./
 void resetAltitude (void)
 {
     refAltitude = meanVal;
 }
 
+// Scheduled task that polls the ADC interrupt at minium 30Hz ??????????????????????????????????????????????????????????????????????????????/
 
-// Converts the ADC sample into a readable percentage altitude.
-int32_t percentAltitude(void)
-{
-    int32_t percent = 1000;     // Why initalised to  1000?????????????????????????????????????????????????????????????????????????
-    percent = 100 * (refAltitude - meanVal) / RANGE_ALTITUDE;
-    return percent; //returns percentage of 0.8V change
-}
-
-
-// Scheduled task that polls the ADC interrupt at minium 30Hz ??????????????????????????????????????????????????????????????????????????????
 void vADCSampleTask(void *pvParameters)
 {
     TickType_t xDelay30s = pdMS_TO_TICKS(30);
@@ -174,17 +159,15 @@ void vADCSampleTask(void *pvParameters)
     }
 }
 
-
 // Scheduled task reads ADC values from the ADC queue and calculates the altitude value
-// using the 0.8V as the maximum height.
+// using the 0.8V as the maximum height./
+
 void vADCTask(void *pvParameters)
 {
     TaskHandle_t xPIDTask = pvParameters;
-
     TickType_t xLastWakeTime;
     xLastWakeTime = xTaskGetTickCount();
     const TickType_t xDelay30s = pdMS_TO_TICKS(30);
-
     BaseType_t xReceive = pdFALSE;
     uint32_t ADCSamples[QUEUE_SIZE];
     int i, j = 0;
@@ -193,28 +176,30 @@ void vADCTask(void *pvParameters)
     {
         vTaskDelayUntil(&xLastWakeTime, xDelay30s);
 
-        xReceive = xQueueReceive(xADCQueue, &ADCSamples[i], portMAX_DELAY); //Read from queue
+        xReceive = xQueueReceive(xADCQueue, &ADCSamples[i], portMAX_DELAY); //Read from queue;
         if (xReceive == pdTRUE) // If value recieved
         {
-            // Moving Average
+            // Moving Average{
             i = (i + 1) % QUEUE_SIZE;
+
             if (i % MOVING_AVERAGE == 0)
             {
-                int offset = ((((i / MOVING_AVERAGE) - 1) * MOVING_AVERAGE + QUEUE_SIZE) % QUEUE_SIZE);
+                int offset = ((((i /MOVING_AVERAGE) - 1) *MOVING_AVERAGE + QUEUE_SIZE) % QUEUE_SIZE);
                 int sum = 0;
-                for (j = 0; j< MOVING_AVERAGE; ++j)
+                for (j = 0; j<MOVING_AVERAGE; ++j)
                 {
                     sum += ADCSamples[offset + j];
                 }
                 meanVal = sum / 5;
+                percentAlt = 100 *(refAltitude -meanVal / RANGE_ALTITUDE);
                 xTaskNotifyGive(xPIDTask);  // Notifies PID task that Altitude updated.
             }
         }
 
-        // Altitude reset
+        // Altitude reset}
         if (calibrate_flag == 0)
         {
-            if (calibrate_counter == 20)    // What is 20???????????????????????????????????????????????????????????????????
+            if (calibrate_counter == 20)    // What is 20???????????????????????????????????????????????????????????????????)
             {
                 resetAltitude();
                 calibrate_flag = 1;
@@ -223,4 +208,5 @@ void vADCTask(void *pvParameters)
         }
     }
 }
+
 
