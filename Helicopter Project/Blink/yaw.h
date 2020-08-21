@@ -22,7 +22,7 @@
 
 
 /***********************************************************************************************
- * getyaw: Uses the current slot number on the disk to return an angle in degrees from the
+ * getYaw: Uses the current slot number on the disk to return an angle in degrees from the
  *         original reference point. Returns angle value between -180 < Yaw < 180 degrees.
  *
  * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
@@ -31,6 +31,12 @@
 int32_t getYaw(void);
 
 
+/***********************************************************************************************
+ * getYawTotal: Calculates the yaw
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
 int32_t getYawTotal(void);
 
 

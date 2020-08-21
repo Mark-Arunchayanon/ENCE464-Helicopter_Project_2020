@@ -78,7 +78,7 @@ int32_t getYaw(void)
     return angle;
 }
 
-
+// Calculates the yaw
 int32_t getYawTotal(void)
 {
     int32_t angle = 0;
