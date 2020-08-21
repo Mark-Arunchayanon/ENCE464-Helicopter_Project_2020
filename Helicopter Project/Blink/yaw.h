@@ -1,60 +1,68 @@
 #ifndef YAW_H_
 #define YAW_H_
 
-
-//*****************************************************************************
-//
-// Yaw - Calculating yaw slot numbers and angles functions through an Interrupt
-//
-// Author:  N. James
-//          L. Trenberth
-//          M. Arunchayanon
-// Last modified:   23.4.2019
-//*****************************************************************************
-
-
-
-
-// *******************************************************
-// getYaw:          Uses the current slot number on the disk to
-//                  return an angle in degrees from the original reference point.
-// RETURNS:         Angle value between -180 < Yaw < 180 degrees.
-int32_t
-getYaw(void);
+/***********************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * yaw - Interrupt based calculations for yaw by tracking slot changes. Also contains support
+ *       functions such as getters, setters and resets.
+ *
+ * Original Authors:        N. James
+ *                          L. Trenberth
+ *                          M. Arunchayanon
+ * Updated to FreeRTOS by:  G. Thiele
+ *                          M. Arunchayanon
+ *                          S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ **********************************************************************************************/
 
 
-int32_t
-getYawTotal(void);
-
-// *******************************************************
-// resetYaw:        Resets the slot number to 0
-void
-resetYaw (void);
 
 
-// *******************************************************
-//  YawIntHandler:  Interrupt handler for the yaw interrupt.
-//                  Measures Phasse A and Phase B.
-//                  If moving clockwise, add 1 to slot
-//                  If moving anti-clockwise, minus 1 to slot
-void
-YawIntHandler (void);
-
-// *******************************************************
-//  YawIntHandler: Interrupt initialisation for the yaw interrupt.
-//                 Sets PB0 and PB1 to be inputs, enables interrupts on GPIOB.
-//                 An interrupt occurs on both edges of PB0 and PB1 and when triggered,
-//                 runs the YawIntHandler function
-void
-initYaw (void);
+/***********************************************************************************************
+ * getyaw: Uses the current slot number on the disk to return an angle in degrees from the
+ *         original reference point. Returns angle value between -180 < Yaw < 180 degrees.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+int32_t getYaw(void);
 
 
-//BaseType_t takeYawSem (void);
-//
-//void giveYawSem (void);
-//
-//void
-//vYawTask (void *pvParameters);
+int32_t getYawTotal(void);
+
+
+/***********************************************************************************************
+ * resetYaw: Resets the slot number to 0
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void resetYaw (void);
+
+
+/***********************************************************************************************
+ * YawIntHandler:  Interrupt handler for the yaw interrupt. Measures Phase A and Phase B. If
+ *                 moving clockwise, add 1 to slot If moving anti-clockwise, minus 1 to slot.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void YawIntHandler (void);
+
+
+/***********************************************************************************************
+ * initYaw: Initialization for associated with yaw. Interrupt initialisation for the yaw
+ *          interrupt. Sets PB0 and PB1 to be inputs, enables interrupts on GPIOB. An interrupt
+ *          occurs on both edges of PB0 and PB1 and when triggered, runs the YawIntHandler
+ *          function
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void initYaw (void);
 
 
 #endif /* YAW_H_*/

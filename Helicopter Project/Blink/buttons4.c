@@ -39,13 +39,10 @@
 #include "uart.h"
 
 
-/***********************************************************************************************
- * Global Variables
- **********************************************************************************************/
-static bool but_state[NUM_BUTS];    // Corresponds to the electrical state
-static uint8_t but_count[NUM_BUTS];
-static bool but_flag[NUM_BUTS];
-static bool but_normal[NUM_BUTS];   // Corresponds to the electrical state
+// Debounce algorithm:  A state machine is associated with each button.
+//                      A state change occurs only after NUM_BUT_POLLS consecutive polls have
+//                      read the pin in the opposite condition, before the state changes and
+//                      a flag is set.  Set NUM_BUT_POLLS according to the polling rate.
 
 
 // Initialise the variables associated with the set of buttons defined by the constants

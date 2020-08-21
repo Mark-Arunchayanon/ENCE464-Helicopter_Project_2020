@@ -1,85 +1,100 @@
-/*
- * motor.h
- *
- *  Created on: 13/05/2019
- *      Author: ltr28
- */
-
 #ifndef MOTOR_H_
 #define MOTOR_H_
-
-/**********************************************************
- * Constants
- **********************************************************/
-// PWM configuration
-#define PWM_RATE_HZ             200
-#define PWM_DUTY_MAX            95
-#define PWM_DUTY_MIN            5
-
-#define PWM_DIVIDER_CODE        SYSCTL_PWMDIV_16
-#define PWM_DIVIDER             16
-
-//Second PWM Config
-#define PWM_SEC_START_DUTY      0 //10
-#define PWM_MAIN_START_DUTY     0 //50
-
-//  PWM Hardware Details M0PWM7 (gen 3)
-//  ---Main Rotor PWM: PC5, J4-05
-#define PWM_MAIN_BASE           PWM0_BASE
-#define PWM_MAIN_GEN            PWM_GEN_3
-#define PWM_MAIN_OUTNUM         PWM_OUT_7
-#define PWM_MAIN_OUTBIT         PWM_OUT_7_BIT
-#define PWM_MAIN_PERIPH_PWM     SYSCTL_PERIPH_PWM0
-#define PWM_MAIN_PERIPH_GPIO    SYSCTL_PERIPH_GPIOC
-#define PWM_MAIN_GPIO_BASE      GPIO_PORTC_BASE
-#define PWM_MAIN_GPIO_CONFIG    GPIO_PC5_M0PWM7
-#define PWM_MAIN_GPIO_PIN       GPIO_PIN_5
+/*************************************************************************************************
+ *
+ * ENCE464 FreeRTOS Helicopter Rig Controller Project
+ *
+ * motor:           Sets up the primary and secondary PWM signals for use
+ *                  and creates functions for controls.
+ *
+ * Original Authors:       N. James
+ *                         L. Trenberth
+ *                         M. Arunchayanon
+ * Updated to FreeRTOS by: G. Thiele
+ *                         M. Arunchayanon
+ *                         S. Goonatillake
+ * Last modified:  21.08.2020
+ *
+ ************************************************************************************************/
 
 
-void
-SetMainPWM (uint32_t ui32Duty);
-
-/*********************************************************
- * initialiseMainPWM
- * M0PWM7 (J4-05, PC5) is used for the main rotor motor
- *********************************************************/
-
-void
-initialiseMainPWM (void);
+/***********************************************************************************************
+ * Global Variables
+ **********************************************************************************************/
+static uint32_t mainPWM = 0;
+static uint32_t tailPWM = 0;
 
 
-/********************************************************
- * Function to set the freq, duty cycle of M1PWM5
- ********************************************************/
-void
-SetTailPWM (uint32_t ui32Duty);
+/***********************************************************************************************
+ * setMainPWM:          Function to set the freq, duty cycle of M0PWM7
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void SetMainPWM(uint32_t ui32Duty);
 
 
-/*********************************************************
- * initialiseTailPWM
- * M1PWM5 (J3-10, PF1) is used for the secondary rotor motor
- *********************************************************/
-void
-initialiseTailPWM (void);
+/***********************************************************************************************
+ * initialiseMainPWM:   Function to set the freq, duty cycle of M0PWM7
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void initialiseMainPWM(void);
 
-void
-resetmotor(void);
 
-void
-initmotor(void);
+/***********************************************************************************************
+ * setTailPWM:   Function to set the freq, duty cycle of M0PWM7
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void SetTailPWM(uint32_t ui32Duty);
 
-void
-changeMainMotor(int change);
 
-void
-changeSecMotor(int change);
+/***********************************************************************************************
+ * initialiseTailPWM:   M1PWM5 (J3-10, PF1) is used for the secondary rotor motor
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void initialiseTailPWM(void);
 
-uint32_t
-getMainPWM(void);
 
-uint32_t
-getTailPWM(void);
+/***********************************************************************************************
+ * resetMotor:   Resets the Peripherals for the GPIO Pins and PWM pins
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void resetmotor(void);
 
+
+/***********************************************************************************************
+ * getMainPWM:   Getter function for the main rotor PWM value
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+uint32_t getMainPWM(void);
+
+
+/***********************************************************************************************
+ * getTailPWM:   Getter function for the tail rotor PWM value
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+uint32_t getTailPWM(void);
+
+
+/***********************************************************************************************
+ * initMotor:   Initializes the main and secondary PWM modules
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
+ **********************************************************************************************/
+void initmotor(void);
 
 
 #endif /* MOTOR_H_ */

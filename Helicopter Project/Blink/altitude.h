@@ -18,10 +18,13 @@
  **********************************************************************************************/
 
 
+#include "control.h"
+
+
 /***********************************************************************************************
  * initADC: Configures and enables the ADC peripherals and software declarations.
  *
- * Authors: M Arunchyanon, S. Goonatillake
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 void initADC (void);
@@ -31,7 +34,7 @@ void initADC (void);
  * ADCIntHandler: The handler for the ADC conversion complete interrupt.
  *                Writes to the ADC queue.
  *
- * Authors: M Arunchyanon, S. Goonatillake
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 void ADCIntHandler(void);
@@ -40,7 +43,7 @@ void ADCIntHandler(void);
 /***********************************************************************************************
  * getAlt: Getter method which returns the altitude converted to percentage format
  *
- * Authors: M Arunchyanon, S. Goonatillake
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 int32_t getAlt (void);
@@ -49,7 +52,7 @@ int32_t getAlt (void);
 /***********************************************************************************************
  * resetAltitude: Resets the altitude reference to the most recently sampled ADC value.
  *
- * Authors: M Arunchyanon, S. Goonatillake
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 void resetAltitude(void);
@@ -58,7 +61,7 @@ void resetAltitude(void);
 /***********************************************************************************************
  * vADCSampleTask: Scheduled task that polls the ADC interrupt at minium 30Hz ??????????????????????????????????????????????????????????????????????????????
  *
- * Authors: M Arunchyanon, S. Goonatillake
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 void vADCSampleTask(void *pvParameters);
@@ -68,7 +71,7 @@ void vADCSampleTask(void *pvParameters);
  * vADCSampleTask: Scheduled task reads ADC values from the ADC queue and calculates the
  *                 altitude value using the 0.8V as the maximum height.
  *
- * Authors: M Arunchyanon, S. Goonatillake
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
  * Last Modified: 21.08.2020
  **********************************************************************************************/
 void vADCTask(void *pvParameters);

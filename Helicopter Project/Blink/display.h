@@ -32,12 +32,18 @@ extern SemaphoreHandle_t xDisplayMutex; // Create mutex for controlling access t
 
 /***********************************************************************************************
  * initDisplay:        Initialises Display using OrbitLED functions
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
  **********************************************************************************************/
 void initDisplay (void);
 
 
 /***********************************************************************************************
  * introLine:          Prints the intro line on the OLED Display
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
  **********************************************************************************************/
 void introLine (void);
 
@@ -47,12 +53,18 @@ void introLine (void);
  * TAKES:              line_format - The format to print the string in, including a integer placeholder
  *                     line_contents - The integer to print on the line
  *                     line_number - The line number integer to print the string on.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
  **********************************************************************************************/
 void printString(char* restrict line_format, int32_t line_contents, uint8_t line_number);
 
 
 /***********************************************************************************************
  * initButtonCheck:    Initialises left and up buttons on the micro-controller
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
  **********************************************************************************************/
 void initButtonCheck (void);
 
@@ -60,6 +72,9 @@ void initButtonCheck (void);
 /***********************************************************************************************
  * vDisplayTask:       A task scheduled by FreeRTOS to update the display. Prints a readout of
  *                     position and control details to the display and UART. Has a task priority of 3.
+ *
+ * Authors: M Arunchyanon, S. Goonatillake, G.Thiele
+ * Last Modified: 21.08.2020
  **********************************************************************************************/
 void vDisplayTask (void *pvParameters);
 
