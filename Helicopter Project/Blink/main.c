@@ -23,6 +23,7 @@
  ************************************************************************************************/
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "inc/hw_memmap.h"
 #include "inc/hw_types.h"
@@ -55,15 +56,15 @@
  * Constants/Definitions
  **********************************************************************************************/
 #define BUF_SIZE                    10
-#define TASK_STACK_DEPTH            128
+#define TASK_STACK_DEPTH            256
 #define DISPLAY_TASK_STACK_DEPTH    1024
 
 // Task priority levels, higher numbers will be executed first.
 #define BUTTON_TASK_PRIORITY        4
 #define CONTROL_TASK_PRIORITY       4
-#define ADCSAMPLE_TASK_PRIORITY     2
-#define ADC_TASK_PRIORITY           2
-#define DISPLAY_TASK_PRIORITY       3
+#define ADCSAMPLE_TASK_PRIORITY     3
+#define ADC_TASK_PRIORITY           3
+#define DISPLAY_TASK_PRIORITY       2
 
 
 /***********************************************************************************************
@@ -88,6 +89,8 @@ int main(void)
     initButtons();
     initSwitch_PC4();
     IntMasterEnable();
+
+
 
     // Create buttons Task
     if (pdTRUE != xTaskCreate(vButtonTask, "Buttons", TASK_STACK_DEPTH, NULL, BUTTON_TASK_PRIORITY, NULL))
@@ -114,7 +117,7 @@ int main(void)
     }
 
     // Create Display Task
-    if (pdTRUE != xTaskCreate(vDisplayTask, "Display", DISPLAY_TASK_STACK_DEPTH, NULL, DISPLAY_TASK_PRIORITY, NULL))
+    if (pdTRUE != xTaskCreate(vDisplayTask, "Display", 512, NULL, DISPLAY_TASK_PRIORITY, NULL))
     {
         while (1); // Error creating task
     }

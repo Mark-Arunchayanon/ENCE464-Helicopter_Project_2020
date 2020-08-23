@@ -59,9 +59,12 @@
 
 #define configTIMER_TASK_PRIORITY 1
 
-#define configTIMER_QUEUE_LENGTH 5
+#define configTIMER_QUEUE_LENGTH 255
 
 #define configTIMER_TASK_STACK_DEPTH 128
+
+#define configUSE_MALLOC_FAILED_HOOK 0
+
 
 #define configUSE_16_BIT_TICKS 0 // not sure what this is
 
@@ -69,7 +72,7 @@
 
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY (1 << 5) // Leaves IRQ priority 0 for any non-RTOS Real Time interrupts
 
-#define configTOTAL_HEAP_SIZE (12 * 1024) // Adjustable - TM4C123 should support at least 24KB heap
+#define configTOTAL_HEAP_SIZE (23 * 1024) // Adjustable - TM4C123 should support at least 24KB heap
 
 #define configCPU_CLOCK_HZ 80000000UL // Full 80MHz clock
 

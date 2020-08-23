@@ -67,13 +67,13 @@ int calibrate_counter = 0;
 static int32_t meanVal = 0;
 int32_t percentAlt,testVal;
 
-QueueHandle_t xADCQueue = NULL;     // Queue for ADC sample from pin to calculationSemaphoreHandle_t xADCCalibrationMutex;    // Mutex declaration
+QueueHandle_t xADCQueue;     // Queue for ADC sample from pin to calculationSemaphoreHandle_t xADCCalibrationMutex;    // Mutex declaration
 
 
 // Configures and enables the ADC peripherals and software declarations.
 void initADC (void)
 {
-    char statusStr[MAX_STR_LEN + 1];
+//    char statusStr[MAX_STR_LEN + 1];
     //
     // The ADC0 peripheral must be enabled for configuration and use.
     SysCtlPeripheralEnable(SYSCTL_PERIPH_ADC0);
@@ -108,8 +108,8 @@ void initADC (void)
     xADCQueue = xQueueCreate(QUEUE_ITEM_SIZE, sizeof(int32_t));
     if (xADCQueue == NULL)
     {
-        usprintf (statusStr, "Could not create ADC queue");
-        UARTSend (statusStr);
+//        usprintf (statusStr, "Could not create ADC queue");
+//        UARTSend (statusStr);
         while (1);
     }
     // Create mutex for use while altitude is being reset
@@ -154,10 +154,11 @@ void vADCSampleTask(void *pvParameters)
 
     for ( ;; )
     {
-        vTaskDelayUntil(&xLastWakeTime, xDelay30s);
+//        vTaskDelayUntil(&xLastWakeTime, xDelay30s);
 
         ADCProcessorTrigger(ADC0_BASE, 3);
         // ADCIntHandler();
+        vTaskDelay(xDelay30s);
     }
 }
 
@@ -169,6 +170,7 @@ void vADCTask(void *pvParameters)
     TaskHandle_t xPIDTask = pvParameters;
 //    TickType_t xLastWakeTime;
 //    xLastWakeTime = xTaskGetTickCount();
+    char statusStr[MAX_STR_LEN + 1];
     const TickType_t xDelay30s = pdMS_TO_TICKS(30);
     BaseType_t xReceive = pdFALSE;
     uint32_t ADCSamples[QUEUE_SIZE];
@@ -206,6 +208,9 @@ void vADCTask(void *pvParameters)
 
 //                percentAlt = 100 *((testVal ));
                 xTaskNotifyGive(xPIDTask);  // Notifies PID task that Altitude updated.
+
+                usprintf (statusStr, "Notify \n\r");
+                UARTSend (statusStr);
             }
         }
 

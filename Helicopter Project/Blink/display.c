@@ -91,6 +91,7 @@ void initButtonCheck (void) {
 // position and control details to the display and UART. Has a task priority of 3.
 void vDisplayTask (void *pvParameters)
 {
+    static char runtime_stats_buffer[512] = { 0 };
     char statusStr[MAX_STR_LEN + 1];
     const TickType_t xDelay1s = pdMS_TO_TICKS(100);
     int32_t yawReading = 0;
@@ -127,11 +128,12 @@ void vDisplayTask (void *pvParameters)
 
 
 //        static char runtime_stats_buffer[512] = { 0 };
-//
+
 //        vTaskGetRunTimeStats(runtime_stats_buffer);
 //
 //        UARTSend(runtime_stats_buffer);
-
-        vTaskDelay(xDelay1s);
+//
+//        vTaskDelay(xDelay1s);
     }
 }
+
